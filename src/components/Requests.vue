@@ -271,7 +271,7 @@ export default {
             appellant: this.appellant,
           }
         };
-        const response = await axios.get("http://wifelly.dev/requests", config);
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/requests", config);
         this.requests = response.data.items
         this.loading = false
         if (isActive) {
@@ -301,7 +301,7 @@ export default {
             appellant: this.appellant,
           }
         };
-        const response = await axios.get("http://wifelly.dev/requests", config);
+        const response = await axios.get(import.meta.env.VITE_API_URL + "/requests", config);
         this.requests = response.data.items
       } catch (error) {
         console.error("Error", error);
@@ -352,7 +352,7 @@ export default {
         headers: {"Authorization": `Bearer ${token}`},
       }
       try {
-        const response = await axios.post('http://wifelly.dev/requests/create', {
+        const response = await axios.post(import.meta.env.VITE_API_URL + '/requests/create', {
           guests: this.guests,
           visit_purpose: this.visitPurpose,
           place_of_visit: this.placeOfVisit,

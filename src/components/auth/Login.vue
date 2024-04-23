@@ -47,7 +47,7 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post('http://wifelly.dev/login', {
+        const response = await axios.post(import.meta.env.VITE_API_URL + '/login', {
           email: this.email,
           password: this.password
         });
