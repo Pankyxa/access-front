@@ -4,10 +4,16 @@
       <v-col cols="12" sm="8" md="4">
         <v-card class="elevation-12">
           <v-toolbar color="primary" dark flat>
-            <v-toolbar-title>Завершение регистрации</v-toolbar-title>
+            <v-toolbar-title>Создание пользователя</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <v-form @submit.prevent="login">
+              <v-text-field
+                v-model="name"
+                label="ФИО"
+                prepend-icon="mdi-lock"
+                type="text"
+              ></v-text-field>
               <v-text-field
                 v-model="password"
                 label="Пароль"
@@ -37,9 +43,10 @@
 import axios from 'axios';
 
 export default {
-  name: 'Confirm',
+  name: 'Create',
   data() {
     return {
+      name: '',
       password: '',
       proof_password: ''
     };
@@ -47,7 +54,7 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + '/confirm', {
+        const response = await axios.post(import.meta.env.VITE_API_URL + '/admin_menu', {
           password: this.password,
           proof_password: this.proof_password,
         });
