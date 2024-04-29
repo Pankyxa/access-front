@@ -97,24 +97,23 @@ export default {
     },
     async userCreate() {
       const token = localStorage.getItem("userToken");
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-        params: {
-          full_name: this.name,
-          email: this.email,
-          roles: [
-            ...[1],
-            ...this.select.map((key) => {
-              const item = this.enumRoles.find(
-                (enumItem) => enumItem.key === key,
-              );
-              return item.value;
-            }),
-          ],
-        },
+      const config = { headers: { authorization: `Bearer ${token}` } };
+      const data = {
+        full_name: this.name,
+        email: this.email,
+        roles: [
+          ...[1],
+          ...this.select.map((key) => {
+            const item = this.enumRoles.find(
+              (enumItem) => enumItem.key === key,
+            );
+            return item.value;
+          }),
+        ],
       };
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "users/create",
+        `${import.meta.env.VITE_API_URL}users/create`,
+        data,
         config,
       );
     },
