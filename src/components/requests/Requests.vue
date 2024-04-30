@@ -60,8 +60,12 @@
                     <v-row>
                       <v-col v-for="(guest, index) in guests" :key="guest.id" cols="12" sm="6">
                         <div class="d-flex align-center justify-space-between">
-                          <v-btn @click="selectGuest(index)" width="flex" :class="{'flex-grow-1': guests.length > 1 && index === guests.length - 1}" block>{{ guest.full_name }}</v-btn>
-                          <v-btn icon v-if="guests.length > 1 && index === guests.length - 1" @click="removeGuest(index)" color="red">
+                          <v-btn @click="selectGuest(index)" width="flex"
+                                 :class="{'flex-grow-1': guests.length > 1 && index === guests.length - 1}" block>
+                            {{ guest.full_name }}
+                          </v-btn>
+                          <v-btn icon v-if="guests.length > 1 && index === guests.length - 1"
+                                 @click="removeGuest(index)" color="red">
                             <v-icon>mdi-delete</v-icon>
                           </v-btn>
                         </div>
@@ -89,7 +93,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
-                text = 'Создать заявку'
+                text='Создать заявку'
                 color="green"
                 @click="createRequest(isActive)"
               ></v-btn>
@@ -133,7 +137,7 @@
               v-model="guest"
             ></v-text-field>
 
-            <v-select v-model="status" label="Статус заявки" :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена']" >
+            <v-select v-model="status" label="Статус заявки" :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена']">
             </v-select>
 
             <v-btn @click="fetchRequests(isActive)">
@@ -148,13 +152,15 @@
       <v-snackbar
         v-model="snackbar"
         :timeout="3000"
-      >Ваша заявка успешно отправлена на рассмотрение</v-snackbar>
+      >Ваша заявка успешно отправлена на рассмотрение
+      </v-snackbar>
       <v-data-table
         :headers="headers"
         :items="requests"
         class="fill-height"
         :loading="loading"
-        >
+        @click:row="goToRequestPage"
+      >
         <template v-slot:loading>
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
@@ -162,38 +168,12 @@
         <template
           v-slot:item.status="{ item }"
         >
-          {{getStatusName(item)}}
+          {{ getStatusName(item) }}
         </template>
         <template
           v-slot:item.datetime_of_visit="{ item }"
         >
-          {{formatDate(item.datetime_of_visit)}}
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-icon
-            class="me-2"
-            size="small"
-            color="green"
-            @click="confirmRequest(item)"
-            v-if="item.status === 1"
-          >
-            mdi-check
-          </v-icon>
-          <v-icon
-            class="me-10"
-            size="small"
-            color="red"
-            @click="rejectRequest(item)"
-            v-if="item.status === 1"
-          >
-            mdi-close
-          </v-icon>
-          <v-icon
-            size="small"
-            @click="deleteItem(item)"
-          >
-            mdi-delete
-          </v-icon>
+          {{ formatDate(item.datetime_of_visit) }}
         </template>
       </v-data-table>
     </v-main>
@@ -204,14 +184,14 @@
 <script>
 import axios from "axios";
 import {format, formatISO, parseISO} from "date-fns";
-import { VTimePicker } from 'vuetify/labs/VTimePicker'
-import { useDate } from 'vuetify'
+import {VTimePicker} from 'vuetify/labs/VTimePicker'
+import {useDate} from 'vuetify'
 import moment from "moment";
 
 export default {
   name: 'Requests',
   data() {
-    return{
+    return {
       requests: [],
       headers: [
         {title: 'Заявитель', key: 'appellant.full_name'},
@@ -221,7 +201,6 @@ export default {
         {title: 'Гости', key: 'guests[0].full_name'},
         {title: 'Статус', key: 'status'},
         {title: 'Одобрил', key: 'confirming.full_name'},
-        {title: 'Действия', key: 'actions', sortable: false }
       ],
       currentPage: 1,
       pageSize: 100,
@@ -229,22 +208,22 @@ export default {
       guest: '',
       status: 'В ожидании',
       reversedStatuses: [
-        { key: 'В ожидании', value: 1},
-        { key: 'Одобрена', value: 2},
-        { key: 'Отклонена', value: 3},
-        { key: 'Все', value: ''}
+        {key: 'В ожидании', value: 1},
+        {key: 'Одобрена', value: 2},
+        {key: 'Отклонена', value: 3},
+        {key: 'Все', value: ''}
       ],
       statuses: [
-        { key: 1 , value: 'В ожидании'},
-        { key: 2, value: 'Одобрена'},
-        { key: 3, value: 'Отклонена'}
+        {key: 1, value: 'В ожидании'},
+        {key: 2, value: 'Одобрена'},
+        {key: 3, value: 'Отклонена'}
       ],
       dateTimeString: '',
       menu: false,
       date: null,
       placeOfVisit: '',
       visitPurpose: '',
-      guests: [{full_name: 'Гость 1', email: '', phone_number: '',is_foreign: false }],
+      guests: [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}],
       selectedGuest: null,
       datePicker: true,
       timePicker: false,
@@ -258,7 +237,7 @@ export default {
   },
   methods: {
     async fetchRequests(isActive = null) {
-      this.loading= true
+      this.loading = true
       try {
         const token = localStorage.getItem("userToken");
         const config = {
@@ -310,7 +289,7 @@ export default {
     },
     addGuest() {
       const newId = this.guests.length + 1;
-      this.guests.push({full_name: 'Гость ' + newId, email: '', phone_number: '',is_foreign: false });
+      this.guests.push({full_name: 'Гость ' + newId, email: '', phone_number: '', is_foreign: false});
     },
     removeGuest(index) {
       this.guests.splice(index, 1);
@@ -364,18 +343,17 @@ export default {
           this.visitPurpose = ''
           this.placeOfVisit = ''
           this.datetimeStr = ''
-          this. guests = [{full_name: 'Гость 1', email: '', phone_number: '',is_foreign: false }]
+          this.guests = [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}]
           isActive.value = false
           this.snackbar = true
-          }
+        }
       } catch (error) {
         console.error("Error", error);
         alert(error.message);
       }
+    }, goToRequestPage(event, item) {
+      this.$router.push('requests/' + item.item.id);
     },
-    confirmRequest(item) {
-      console.log(item.status)
-    }
   },
   mounted() {
     this.fetchRequests()

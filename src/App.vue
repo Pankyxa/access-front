@@ -8,5 +8,5 @@
 
 <script setup>
   import Login from "@/components/auth/Login.vue";
-  import Requests from "@/components/Requests.vue";
+  import Requests from "@/components/requests/Requests.vue";
 </script>
