@@ -183,7 +183,8 @@
         :items="requests"
         class="fill-height"
         :loading="loading"
-        >
+        @click:row="goToRequestPage"
+      >
         <template v-slot:loading>
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
@@ -197,32 +198,6 @@
           v-slot:item.datetime_of_visit="{ item }"
         >
           {{formatDate(item.datetime_of_visit)}}
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-icon
-            class="me-2"
-            size="small"
-            color="green"
-            @click="confirmRequest(item)"
-            v-if="item.status === 1"
-          >
-            mdi-check
-          </v-icon>
-          <v-icon
-            class="me-10"
-            size="small"
-            color="red"
-            @click="rejectRequest(item)"
-            v-if="item.status === 1"
-          >
-            mdi-close
-          </v-icon>
-          <v-icon
-            size="small"
-            @click="deleteItem(item)"
-          >
-            mdi-delete
-          </v-icon>
         </template>
       </v-data-table>
     </v-main>
@@ -250,7 +225,6 @@ export default {
         {title: 'Гости', key: 'guests[0].full_name'},
         {title: 'Статус', key: 'status'},
         {title: 'Одобрил', key: 'confirming.full_name'},
-        {title: 'Действия', key: 'actions', sortable: false }
       ],
       currentPage: 1,
       pageSize: 100,
@@ -401,6 +375,9 @@ export default {
         console.error("Error", error);
         alert(error.message);
       }
+    },
+    goToRequestPage(event, item) {
+      this.$router.push('requests/' + item.item.id);
     },
     confirmRequest(item) {
       console.log(item.status)

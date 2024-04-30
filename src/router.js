@@ -3,7 +3,6 @@ import Login from "@/components/auth/Login.vue";
 import Requests from "@/components/requests/Requests.vue";
 import Request from "@/components/requests/RequestPage.vue";
 import Confirm from "@/components/confirmation/Confirm.vue";
-import UserCreate from "@/components/admin_menu/UserCreate.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 
 const router = createRouter ({
