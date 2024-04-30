@@ -7,6 +7,9 @@
 </template>
 
 <script setup>
-  import Login from "@/components/auth/Login.vue";
-  import Requests from "@/components/Requests.vue";
+import axios from "axios";
+
+// axios.defaults.withCredentials = true;
+import Login from "@/components/auth/Login.vue";
+import Requests from "@/components/Requests.vue";
 </script>
