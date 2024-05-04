@@ -259,7 +259,6 @@ export default {
   },
   methods: {
     async fetchRequests(isActive = null) {
-      console.log(this.hasConfirmingColumn)
       this.loading = true
       try {
         const token = localStorage.getItem("userToken");
