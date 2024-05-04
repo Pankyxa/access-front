@@ -118,7 +118,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
-                text = 'Создать заявку'
+                text='Создать заявку'
                 color="green"
                 @click="createRequest(isActive)"
               ></v-btn>
@@ -154,15 +154,18 @@
             class="pa-4"
           >
             <v-text-field
+              v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
               label="Заявляющий"
               v-model="appellant"
             ></v-text-field>
             <v-text-field
+              v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
               label="Гость"
               v-model="guest"
             ></v-text-field>
 
-            <v-select v-model="status" label="Статус заявки" :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена']" >
+            <v-select v-model="status" label="Статус заявки"
+                      :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена', 'Удалена']">
             </v-select>
 
             <v-btn @click="fetchRequests(isActive)">
@@ -177,7 +180,8 @@
       <v-snackbar
         v-model="snackbar"
         :timeout="3000"
-      >Ваша заявка успешно отправлена на рассмотрение</v-snackbar>
+      >Ваша заявка успешно отправлена на рассмотрение
+      </v-snackbar>
       <v-data-table
         :headers="headers"
         :items="requests"
@@ -189,15 +193,14 @@
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
 
-        <template
-          v-slot:item.status="{ item }"
-        >
-          {{getStatusName(item)}}
+        <template v-slot:item.status="{ item }">
+          {{ getStatusName(item) }}
         </template>
-        <template
-          v-slot:item.datetime_of_visit="{ item }"
-        >
-          {{formatDate(item.datetime_of_visit)}}
+        <template v-slot:item.datetime_of_visit="{ item }">
+          {{ formatDate(item.datetime_of_visit) }}
+        </template>
+        <template v-slot:item.guests="{item}">
+          {{ item.guests.length }}
         </template>
       </v-data-table>
     </v-main>
@@ -208,46 +211,41 @@
 <script>
 import axios from "axios";
 import {format, formatISO, parseISO} from "date-fns";
-import { VTimePicker } from 'vuetify/labs/VTimePicker'
-import { useDate } from 'vuetify'
+import {VTimePicker} from 'vuetify/labs/VTimePicker'
+import {useDate} from 'vuetify'
 import moment from "moment";
+import VueJwtDecode from 'vue-jwt-decode'
 
 export default {
   name: 'Requests',
   data() {
-    return{
+    return {
       requests: [],
-      headers: [
-        {title: 'Заявитель', key: 'appellant.full_name'},
-        {title: 'Место визита', key: 'place_of_visit'},
-        {title: 'Причина визита', key: 'visit_purpose'},
-        {title: 'Дата визита', key: 'datetime_of_visit'},
-        {title: 'Гости', key: 'guests[0].full_name'},
-        {title: 'Статус', key: 'status'},
-        {title: 'Одобрил', key: 'confirming.full_name'},
-      ],
+      headers: [],
       currentPage: 1,
       pageSize: 100,
       appellant: '',
       guest: '',
       status: 'В ожидании',
       reversedStatuses: [
-        { key: 'В ожидании', value: 1},
-        { key: 'Одобрена', value: 2},
-        { key: 'Отклонена', value: 3},
-        { key: 'Все', value: ''}
+        {key: 'В ожидании', value: 1},
+        {key: 'Одобрена', value: 2},
+        {key: 'Отклонена', value: 3},
+        {key: 'Удалена', value: 4},
+        {key: 'Все', value: null}
       ],
       statuses: [
-        { key: 1 , value: 'В ожидании'},
-        { key: 2, value: 'Одобрена'},
-        { key: 3, value: 'Отклонена'}
+        {key: 1, value: 'В ожидании'},
+        {key: 2, value: 'Одобрена'},
+        {key: 3, value: 'Отклонена'},
+        {key: 4, value: 'Удалена'},
       ],
       dateTimeString: '',
       menu: false,
       date: null,
       placeOfVisit: '',
       visitPurpose: '',
-      guests: [{full_name: 'Гость 1', email: '', phone_number: '',is_foreign: false }],
+      guests: [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}],
       selectedGuest: null,
       datePicker: true,
       timePicker: false,
@@ -261,59 +259,60 @@ export default {
   },
   methods: {
     async fetchRequests(isActive = null) {
-      this.loading= true
+      console.log(this.hasConfirmingColumn)
+      this.loading = true
       try {
         const token = localStorage.getItem("userToken");
         const config = {
           headers: {"Authorization": `Bearer ${token}`},
           params: {
-            currentPage: this.currentPage,
-            pageSize: this.pageSize,
             status: this.reversedStatuses.find(status => status.key === this.status).value,
             full_name: this.guest,
             appellant: this.appellant,
           }
         };
         const response = await axios.get(import.meta.env.VITE_API_URL + "/requests", config);
-        this.requests = response.data.items
+        this.requests = response.data
         this.loading = false
         if (isActive) {
           isActive.value = false
         }
+
+        // Динамическая настройка заголовков таблицы
+        this.setupTableHeaders();
       } catch (error) {
         console.error("Error", error);
         alert(error.message);
       }
+    },
+    setupTableHeaders() {
+      // Определяем, нужно ли добавить колонку "Рассмотрел"
+      const hasConfirmingColumn = this.requests.some(request => request.confirming && request.confirming.full_name);
+
+      // Создаем новый массив заголовков таблицы
+      const newHeaders = [
+        {title: 'Заявитель', key: 'appellant.full_name'},
+        {title: 'Место визита', key: 'place_of_visit'},
+        {title: 'Причина визита', key: 'visit_purpose'},
+        {title: 'Дата визита', key: 'datetime_of_visit'},
+        {title: 'Количество гостей', key: 'guests'},
+        {title: 'Статус', key: 'status'},
+      ];
+
+      // Добавляем колонку "Рассмотрел", если нужно
+      if (hasConfirmingColumn) {
+        newHeaders.push({title: 'Рассмотрел', key: 'confirming.full_name'});
+      }
+
+      // Присваиваем новый массив заголовков таблицы
+      this.headers = newHeaders;
     },
     formatDate(datetime) {
       return format(parseISO(datetime), 'd.MM.Y H:mm')
     },
-    setStatus(newStatus) {
-      this.status = newStatus
-    },
-    async filteredRequest() {
-      try {
-        const token = localStorage.getItem("userToken");
-        const config = {
-          headers: {"Authorization": `Bearer ${token}`},
-          params: {
-            currentPage: this.currentPage,
-            pageSize: this.pageSize,
-            status: this.status,
-            full_name: this.guest,
-            appellant: this.appellant,
-          }
-        };
-        const response = await axios.get(import.meta.env.VITE_API_URL + "/requests", config);
-        this.requests = response.data.items
-      } catch (error) {
-        console.error("Error", error);
-        alert(error.message);
-      }
-    },
     addGuest() {
       const newId = this.guests.length + 1;
-      this.guests.push({full_name: 'Гость ' + newId, email: '', phone_number: '',is_foreign: false });
+      this.guests.push({full_name: 'Гость ' + newId, email: '', phone_number: '', is_foreign: false});
     },
     removeGuest(index) {
       this.guests.splice(index, 1);
@@ -367,10 +366,10 @@ export default {
           this.visitPurpose = ''
           this.placeOfVisit = ''
           this.datetimeStr = ''
-          this. guests = [{full_name: 'Гость 1', email: '', phone_number: '',is_foreign: false }]
+          this.guests = [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}]
           isActive.value = false
           this.snackbar = true
-          }
+        }
       } catch (error) {
         console.error("Error", error);
         alert(error.message);
@@ -379,8 +378,9 @@ export default {
     goToRequestPage(event, item) {
       this.$router.push('requests/' + item.item.id);
     },
-    confirmRequest(item) {
-      console.log(item.status)
+    selfRoles() {
+      const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
+      return userData.extras.roles
     }
   },
   mounted() {

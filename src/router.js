@@ -11,7 +11,7 @@ const router = createRouter ({
     {path: '/', component: Login},
     {path: '/requests', component: Requests},
     {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
-    {path: '/confirm', component: Confirm},
+    {path: '/confirm/:id', component: Confirm, props: true},
     {path: '/admin_menu', component: AdminMenu}
   ]
 })
