@@ -1,180 +1,180 @@
 <template>
   <v-app>
-    <v-app-bar :style="{ backgroundColor: 'rgba(25, 118, 210, 0.5)' }">
-      <v-app-bar-title>Заявки</v-app-bar-title>
-      <v-spacer></v-spacer>
+    <nav-menu>
+      <template v-slot:title>Заявки</template>
+      <template v-slot:actions>
+        <v-dialog max-width="1000">
+          <template v-slot:activator="{props: activatorProps}">
+            <v-btn v-bind="activatorProps" color="green">
+              <v-icon left>mdi-plus</v-icon>
+              Создать заявку
+            </v-btn>
+          </template>
 
-      <v-dialog max-width="1000">
-        <template v-slot:activator="{props: activatorProps}">
-          <v-btn v-bind="activatorProps" color="green">
-            <v-icon left>mdi-plus</v-icon>
-            Создать заявку
-          </v-btn>
-        </template>
+          <template v-slot:default="{ isActive }">
+            <v-card title="Новая заявка">
+              <v-card-text>
+                <v-text-field
+                  label="Место визита"
+                  v-model="placeOfVisit"
+                ></v-text-field>
 
-        <template v-slot:default="{ isActive }">
-          <v-card title="Новая заявка">
-            <v-card-text>
-              <v-text-field
-                label="Место визита"
-                v-model="placeOfVisit"
-              ></v-text-field>
+                <v-text-field
+                  label="Цель визита"
+                  v-model="visitPurpose"
+                ></v-text-field>
 
-              <v-text-field
-                label="Цель визита"
-                v-model="visitPurpose"
-              ></v-text-field>
+                <v-menu :close-on-content-click="false" v-model="menu">
+                  <template v-slot:activator="{ props: menuDate }">
+                    <v-text-field
+                      label="Дата визита"
+                      v-bind="menuDate"
+                      v-model="datetimeStr"
+                    ></v-text-field>
+                  </template>
 
-              <v-menu :close-on-content-click="false" v-model="menu">
-                <template v-slot:activator="{ props: menuDate }">
-                  <v-text-field
-                    label="Дата визита"
-                    v-bind="menuDate"
-                    v-model="datetimeStr"
-                  ></v-text-field>
-                </template>
+                  <v-card>
+                    <v-card-title>
+                      <v-btn icon="mdi-calendar" @click="dateButton"></v-btn>
+                      <v-btn icon="mdi-clock" @click="timeButton"></v-btn>
+                      <v-btn icon="mdi-check" @click="datetimeSave"></v-btn>
+                    </v-card-title>
+                    <v-date-picker
+                      v-if="datePicker === true"
+                      @update:modelValue="dateChange"
+                    ></v-date-picker>
+                    <v-time-picker
+                      v-if="timePicker === true"
+                      @update:model-value="timeChange"
+                    ></v-time-picker>
+                  </v-card>
+                </v-menu>
 
                 <v-card>
                   <v-card-title>
-                    <v-btn icon="mdi-calendar" @click="dateButton"></v-btn>
-                    <v-btn icon="mdi-clock" @click="timeButton"></v-btn>
-                    <v-btn icon="mdi-check" @click="datetimeSave"></v-btn>
+                    Гости
+                    <v-tooltip right>
+                      <template v-slot:activator="{ props: tooltip }">
+                        <v-icon v-bind="tooltip">mdi-information</v-icon>
+                      </template>
+                      <span>Если количество гостей больше 10, воспользуйтесь загрузкой файла</span>
+                    </v-tooltip>
                   </v-card-title>
-                  <v-date-picker
-                    v-if="datePicker === true"
-                    @update:modelValue="dateChange"
-                  ></v-date-picker>
-                  <v-time-picker
-                    v-if="timePicker === true"
-                    @update:model-value="timeChange"
-                  ></v-time-picker>
-                </v-card>
-              </v-menu>
-
-              <v-card>
-                <v-card-title>
-                  Гости
-                  <v-tooltip right>
-                    <template v-slot:activator="{ props: tooltip }">
-                      <v-icon v-bind="tooltip">mdi-information</v-icon>
-                    </template>
-                    <span>Если количество гостей больше 10, воспользуйтесь загрузкой файла</span>
-                  </v-tooltip>
-                </v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col
-                        v-for="(guest, index) in guests"
-                        :key="guest.id"
-                        cols="12"
-                        sm="6"
-                      >
-                        <div class="d-flex align-center justify-space-between">
-                          <v-btn
-                            @click="selectGuest(index)"
-                            width="flex"
-                            :class="{
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col
+                          v-for="(guest, index) in guests"
+                          :key="guest.id"
+                          cols="12"
+                          sm="6"
+                        >
+                          <div class="d-flex align-center justify-space-between">
+                            <v-btn
+                              @click="selectGuest(index)"
+                              width="flex"
+                              :class="{
                               'flex-grow-1':
                                 guests.length > 1 &&
                                 index === guests.length - 1,
                             }"
-                            block
-                          >
-                            {{ guest.full_name }}
-                          </v-btn>
-                          <v-btn
-                            icon
-                            v-if="
+                              block
+                            >
+                              {{ guest.full_name }}
+                            </v-btn>
+                            <v-btn
+                              icon
+                              v-if="
                               guests.length > 1 && index === guests.length - 1
                             "
-                            @click="removeGuest(index)"
-                            color="red"
-                          >
-                            <v-icon>mdi-delete</v-icon>
+                              @click="removeGuest(index)"
+                              color="red"
+                            >
+                              <v-icon>mdi-delete</v-icon>
+                            </v-btn>
+                          </div>
+                        </v-col>
+                        <v-col v-if="guests.length < 10" cols="12" sm="6">
+                          <v-btn @click="addGuest" block color="green">
+                            <v-icon>mdi-plus</v-icon>
                           </v-btn>
-                        </div>
-                      </v-col>
-                      <v-col v-if="guests.length < 10" cols="12" sm="6">
-                        <v-btn @click="addGuest" block color="green">
-                          <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                    <v-row v-if="selectedGuest !== null">
-                      <v-col cols="12">
-                        <h3>Заполните данные для гостя: {{ guests[selectedGuest].full_name }}</h3>
-                        <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО"></v-text-field>
-                        <v-text-field v-model="guests[selectedGuest].phone_number" label="Телефон"></v-text-field>
-                        <v-text-field v-model="guests[selectedGuest].email" label="Почта"></v-text-field>
-                        <v-checkbox v-model="guests[selectedGuest].is_foreign" label="Иностранец"></v-checkbox>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-              </v-card>
-            </v-card-text>
+                        </v-col>
+                      </v-row>
+                      <v-row v-if="selectedGuest !== null">
+                        <v-col cols="12">
+                          <h3>Заполните данные для гостя: {{ guests[selectedGuest].full_name }}</h3>
+                          <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО"></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].phone_number" label="Телефон"></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].email" label="Почта"></v-text-field>
+                          <v-checkbox v-model="guests[selectedGuest].is_foreign" label="Иностранец"></v-checkbox>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+                </v-card>
+              </v-card-text>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                text='Создать заявку'
-                color="green"
-                @click="createRequest(isActive)"
-              ></v-btn>
-              <v-btn
-                text="Отмена"
-                @click="isActive.value = false"
-              ></v-btn>
-            </v-card-actions>
-          </v-card>
-        </template>
-      </v-dialog>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  text='Создать заявку'
+                  color="green"
+                  @click="createRequest(isActive)"
+                ></v-btn>
+                <v-btn
+                  text="Отмена"
+                  @click="isActive.value = false"
+                ></v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
 
 
-      <v-menu
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="290px"
-        class="pa-4"
-      >
-        <template v-slot:activator="{props: menuActivator}">
-          <v-btn v-bind="menuActivator">
-            <v-icon left>mdi-filter</v-icon>
-            Фильтры
-          </v-btn>
-        </template>
-
-        <template v-slot:default="{isActive}">
-          <v-card
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-            class="pa-4"
-          >
-            <v-text-field
-              v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
-              label="Заявляющий"
-              v-model="appellant"
-            ></v-text-field>
-            <v-text-field
-              v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
-              label="Гость"
-              v-model="guest"
-            ></v-text-field>
-
-            <v-select v-model="status" label="Статус заявки"
-                      :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена', 'Удалена']">
-            </v-select>
-
-            <v-btn @click="fetchRequests(isActive)">
-              Применить фильтры
+        <v-menu
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="290px"
+          class="pa-4"
+        >
+          <template v-slot:activator="{props: menuActivator}">
+            <v-btn v-bind="menuActivator">
+              <v-icon left>mdi-filter</v-icon>
+              Фильтры
             </v-btn>
-          </v-card>
-        </template>
-      </v-menu>
-    </v-app-bar>
+          </template>
+
+          <template v-slot:default="{isActive}">
+            <v-card
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+              class="pa-4"
+            >
+              <v-text-field
+                v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
+                label="Заявляющий"
+                v-model="appellant"
+              ></v-text-field>
+              <v-text-field
+                v-if="selfRoles().includes(2) || selfRoles().includes(3) || selfRoles().includes(4)"
+                label="Гость"
+                v-model="guest"
+              ></v-text-field>
+
+              <v-select v-model="status" label="Статус заявки"
+                        :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена', 'Удалена']">
+              </v-select>
+
+              <v-btn @click="fetchRequests(isActive)">
+                Применить фильтры
+              </v-btn>
+            </v-card>
+          </template>
+        </v-menu>
+      </template>
+    </nav-menu>
 
     <v-main class="fill-height">
       <v-snackbar
@@ -187,20 +187,30 @@
         :items="requests"
         class="fill-height"
         :loading="loading"
-        @click:row="goToRequestPage"
+        @update:page="updatePage"
+        :page="page"
       >
         <template v-slot:loading>
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
 
-        <template v-slot:item.status="{ item }">
-          {{ getStatusName(item) }}
-        </template>
-        <template v-slot:item.datetime_of_visit="{ item }">
-          {{ formatDate(item.datetime_of_visit) }}
-        </template>
-        <template v-slot:item.guests="{item}">
-          {{ item.guests.length }}
+        <template v-slot:item="{item, index}">
+          <tr
+            :style="index === rowIndex ? { backgroundColor: '#313131' } : {}"
+            @click="goToRequestPage($event, item)"
+            @mouseover="rowIndex = index"
+            @mouseleave="rowIndex = null"
+            class="v-data-table__tr v-data-table__tr--clickable"
+          >
+            <td>{{ item.appellant.full_name }}</td>
+            <td>{{ item.place_of_visit }}</td>
+            <td>{{ item.visit_purpose }}</td>
+            <td>{{ formatDate(item.datetime_of_visit) }}</td>
+            <td>{{ item.guests.length }}</td>
+            <td>{{ getStatusName(item) }}</td>
+            <td v-if="item.confirming">{{ item.confirming.full_name }}</td>
+            <td v-else-if="headers.some(header => header.title === 'Рассмотрел')"></td>
+          </tr>
         </template>
       </v-data-table>
     </v-main>
@@ -215,6 +225,7 @@ import {VTimePicker} from 'vuetify/labs/VTimePicker'
 import {useDate} from 'vuetify'
 import moment from "moment";
 import VueJwtDecode from 'vue-jwt-decode'
+import NavMenu from "@/components/NavMenu.vue";
 
 export default {
   name: 'Requests',
@@ -222,8 +233,6 @@ export default {
     return {
       requests: [],
       headers: [],
-      currentPage: 1,
-      pageSize: 100,
       appellant: '',
       guest: '',
       status: 'В ожидании',
@@ -254,11 +263,20 @@ export default {
       datetimeStr: '',
       snackbar: false,
       filterMenu: false,
-      loading: true
+      loading: true,
+      rowIndex: null,
+      page: 1,
+      firstLoad: true,
     };
   },
   methods: {
     async fetchRequests(isActive = null) {
+      sessionStorage.setItem('filterState', JSON.stringify({
+        status: this.status,
+        appellant: this.appellant,
+        guest: this.guest,
+        currentPage: this.currentPage
+      }));
       this.loading = true
       try {
         const token = localStorage.getItem("userToken");
@@ -375,25 +393,57 @@ export default {
       }
     },
     goToRequestPage(event, item) {
-      this.$router.push('requests/' + item.item.id);
+      this.$router.push('requests/' + item.id);
     },
     selfRoles() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
       return userData.extras.roles
+    },
+    handleRowMouseOver(event, item) {
+      console.log('aaa')
+      this.rowIndex = item.index
+    },
+    restoreFilterState() {
+      const state = sessionStorage.getItem('filterState');
+      if (state) {
+        const { status, appellant, guest, currentPage } = JSON.parse(state);
+        this.status = status;
+        this.appellant = appellant;
+        this.guest = guest;
+        this.currentPage = currentPage;
+      }
+    },
+    updatePage(page) {
+      if (!this.firstLoad || this.page === 1) {
+        console.log(page, 'aaa')
+        this.page = page;
+        sessionStorage.setItem('currentPage', page.toString());
+      }
+      this.firstLoad = false
+    },
+    restorePage() {
+      const savedPage = sessionStorage.getItem('currentPage');
+      if (savedPage) {
+        this.page = parseInt(savedPage);
+      }
     }
   },
   mounted() {
-    this.fetchRequests()
+    this.restoreFilterState();
+    this.restorePage();
+    this.fetchRequests();
   },
   components: {
     VTimePicker,
+    NavMenu
   },
 }
 </script>
 
 
 <style scoped>
-.v-data-table__wrapper {
-  padding-bottom: 0 !important; /* Удаляем нижний отступ */
+.highlight-row {
+  background-color: #607ede; /* Используйте нужный вам цвет */
 }
 </style>
+

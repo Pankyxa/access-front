@@ -1,6 +1,7 @@
 <template>
   <v-app id="inspire">
     <v-app-bar v-if="request" :style="{ backgroundColor: 'rgba(25, 118, 210, 0.5)' }">
+      <v-btn @click="goBack"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
       <v-app-bar-title>
         Заявка от {{ request.appellant.full_name }}
       </v-app-bar-title>
@@ -53,6 +54,18 @@
                 </template>
                 <template v-slot:item.visit_status="{item}">
                   {{ formatStatus(item) }}
+                </template>
+                <template v-slot:item.actions="{item}">
+                  <v-btn
+                    v-if="item.visit_status === 1"
+                    color="green"
+                    @click="reviewStatusGuest($event, item, 2)"
+                  >Вошел</v-btn>
+                  <v-btn
+                    v-if="item.visit_status === 2"
+                    color="red"
+                    @click="reviewStatusGuest($event, item, 3)"
+                  >Вышел</v-btn>
                 </template>
               </v-data-table>
             </v-card>
@@ -125,6 +138,9 @@ export default {
       if (this.request.status !== 4) {
         newHeaders.push({title: 'Статус', key: 'visit_status'},)
       }
+      if (this.request.guests.some(guest => guest.visit_status !== 3) & this.request.status === 2) {
+        newHeaders.push({ title: 'Действия', key: 'actions', sortable: false },)
+      }
       this.headers = newHeaders;
     },
     formatDate(datetime) {
@@ -179,6 +195,22 @@ export default {
     selfRoles() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
       return userData.extras.roles
+    },
+    async reviewStatusGuest(event,  item, status) {
+      console.log(item)
+      const token = localStorage.getItem("userToken");
+      const config = {
+        headers: {"Authorization": `Bearer ${token}`},
+      };
+      try {
+        const response = await axios.post(import.meta.env.VITE_API_URL + 'requests/guests/actions', {guest_id: item.id, status: status}, config)
+      } catch (error) {
+        console.error('Error', error)
+      }
+      await this.getRequest()
+    },
+    goBack() {
+      this.$router.push('/requests')
     }
   },
   mounted() {
