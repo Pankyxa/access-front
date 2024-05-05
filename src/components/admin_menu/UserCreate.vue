@@ -7,28 +7,26 @@
             <v-toolbar-title>Создание пользователя</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form @submit.prevent="login">
+            <v-form>
               <v-text-field
-                v-model="name"
-                label="ФИО"
-                prepend-icon="mdi-lock"
-                type="text"
+                  v-model="name"
+                  label="ФИО"
+                  type="text"
               ></v-text-field>
               <v-text-field
-                v-model="password"
-                label="Пароль"
-                prepend-icon="mdi-lock"
-                type="password"
+                  v-model="email"
+                  label="Почта"
+                  type="email"
               ></v-text-field>
-              <v-text-field
-                v-model="proof_password"
-                label="Подтвердите пароль"
-                prepend-icon="mdi-lock"
-                type="password"
-              ></v-text-field>
+              <v-combobox
+                  v-model="select"
+                  :items="role"
+                  label="Роль"
+                  chips
+                  multiple
+              ></v-combobox>
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" type="submit">Войти</v-btn>
+                <v-btn color="primary" @click="userCreate">Создать</v-btn>
               </v-card-actions>
             </v-form>
           </v-card-text>
@@ -46,27 +44,44 @@ export default {
   name: 'Create',
   data() {
     return {
-      name: '',
-      password: '',
-      proof_password: ''
+      name: "",
+      email: "",
+      role: ["Охранник", "Начальник охраны", "Админ"],
+      select: [],
+      drawer: false,
+      isAdmin: true,
+      showForm: false,
+      enumRoles: [
+        {key: "Охранник", value: 2},
+        {key: "Начальник охраны", value: 3},
+        {key: "Админ", value: 4},
+      ],
     };
   },
   methods: {
-    async login() {
-      try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + '/admin_menu', {
-          password: this.password,
-          proof_password: this.proof_password,
-        });
-        console.log('Proof successful', response);
-        localStorage.setItem('userToken', response.data.token);
-        this.$router.push('/requests');
-      } catch (error) {
-        console.error('Proof failed', error);
-        alert("Ошибка входа: " + error.message);
-      }
-    }
-  }
+    async userCreate() {
+      const token = localStorage.getItem("userToken");
+      const config = {headers: {authorization: `Bearer ${token}`}};
+      const data = {
+        full_name: this.name,
+        email: this.email,
+        roles: [
+          ...[1],
+          ...this.select.map((key) => {
+            const item = this.enumRoles.find(
+                (enumItem) => enumItem.key === key,
+            );
+            return item.value;
+          }),
+        ],
+      };
+      await axios.post(
+          `${import.meta.env.VITE_API_URL}users/create`,
+          data,
+          config,
+      );
+    },
+  },
 };
 </script>
 

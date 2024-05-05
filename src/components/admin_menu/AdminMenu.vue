@@ -40,25 +40,26 @@
               <v-card-text>
                 <v-form>
                   <v-text-field
-                    v-model="name"
-                    label="ФИО"
-                    type="text"
+                      v-model="name"
+                      label="ФИО"
+                      type="text"
                   ></v-text-field>
                   <v-text-field
-                    v-model="email"
-                    label="Почта"
-                    type="email"
+                      v-model="email"
+                      label="Почта"
+                      type="email"
                   ></v-text-field>
                   <v-combobox
-                    v-model="select"
-                    :items="role"
-                    label="Роль"
-                    chips
-                    multiple
+                      v-model="select"
+                      :items="role"
+                      label="Роль"
+                      chips
+                      multiple
                   ></v-combobox>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" @click="userCreate">Создать</v-btn>
+                    <v-btn color="primary" @click="cancelForm">Отмена</v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -85,9 +86,9 @@ export default {
       isAdmin: true,
       showForm: false,
       enumRoles: [
-        { key: "Охранник", value: 2 },
-        { key: "Начальник охраны", value: 3 },
-        { key: "Админ", value: 4 },
+        {key: "Охранник", value: 2},
+        {key: "Начальник охраны", value: 3},
+        {key: "Админ", value: 4},
       ],
     };
   },
@@ -95,9 +96,13 @@ export default {
     redirectToRequests() {
       this.$router.push("/requests");
     },
+    cancelForm() {
+      this.showForm = false;
+    },
+
     async userCreate() {
       const token = localStorage.getItem("userToken");
-      const config = { headers: { authorization: `Bearer ${token}` } };
+      const config = {headers: {authorization: `Bearer ${token}`}};
       const data = {
         full_name: this.name,
         email: this.email,
@@ -105,16 +110,16 @@ export default {
           ...[1],
           ...this.select.map((key) => {
             const item = this.enumRoles.find(
-              (enumItem) => enumItem.key === key,
+                (enumItem) => enumItem.key === key,
             );
             return item.value;
           }),
         ],
       };
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}users/create`,
-        data,
-        config,
+      await axios.post(
+          `${import.meta.env.VITE_API_URL}users/create`,
+          data,
+          config,
       );
     },
   },
@@ -124,9 +129,8 @@ export default {
 <style scoped>
 .fill-height {
   height: 100vh;
-  background:
-    url("src/components/auth/login.png") right top no-repeat fixed,
-    linear-gradient(to right, #211c84, #4684e8) no-repeat;
+  background: url("src/components/auth/login.png") right top no-repeat fixed,
+  linear-gradient(to right, #211c84, #4684e8) no-repeat;
   background-size: auto 100vh;
 }
 </style>
