@@ -83,7 +83,6 @@
                               {{ guest.full_name }}
                             </v-btn>
                             <v-btn
-                              icon
                               v-if="
                               guests.length > 1 && index === guests.length - 1
                             "
@@ -220,9 +219,8 @@
 
 <script>
 import axios from "axios";
-import {format, formatISO, parseISO} from "date-fns";
+import {format, parseISO} from "date-fns";
 import {VTimePicker} from 'vuetify/labs/VTimePicker'
-import {useDate} from 'vuetify'
 import moment from "moment";
 import VueJwtDecode from 'vue-jwt-decode'
 import NavMenu from "@/components/NavMenu.vue";
@@ -378,7 +376,7 @@ export default {
           datetime_of_visit: moment(this.datetimeStr).toISOString()
         }, config);
         if (response) {
-          this.fetchRequests()
+          await this.fetchRequests()
           this.selectedGuest = null
           this.visitPurpose = ''
           this.placeOfVisit = ''
@@ -398,10 +396,6 @@ export default {
     selfRoles() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
       return userData.extras.roles
-    },
-    handleRowMouseOver(event, item) {
-      console.log('aaa')
-      this.rowIndex = item.index
     },
     restoreFilterState() {
       const state = sessionStorage.getItem('filterState');
@@ -442,8 +436,5 @@ export default {
 
 
 <style scoped>
-.highlight-row {
-  background-color: #607ede; /* Используйте нужный вам цвет */
-}
 </style>
 

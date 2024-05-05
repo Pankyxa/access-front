@@ -167,7 +167,7 @@ export default {
         headers: {"Authorization": `Bearer ${token}`},
       };
       try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + 'requests/review', {
+        await axios.post(import.meta.env.VITE_API_URL + 'requests/review', {
           request_id: this.id,
           status: status,
         }, config);
@@ -186,7 +186,7 @@ export default {
         headers: {"Authorization": `Bearer ${token}`},
       };
       try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + 'requests/remove', {request_id: this.request.id}, config)
+        await axios.post(import.meta.env.VITE_API_URL + 'requests/remove', {request_id: this.request.id}, config)
       } catch (error) {
         console.error('Error', error)
       }
