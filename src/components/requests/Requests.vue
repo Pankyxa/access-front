@@ -162,8 +162,8 @@
                 v-model="guest"
               ></v-text-field>
 
-              <v-select v-model="status" label="Статус заявки"
-                        :items="['Все', 'В ожидании', 'Одобрена', 'Отклонена', 'Удалена']">
+              <v-select v-model="status" label="Статус заявок"
+                        :items="['Все', 'В ожидании', 'Одобренные', 'Отклонённые', 'Завершённые', 'Удалённые']">
               </v-select>
 
               <v-btn @click="fetchRequests(isActive)">
@@ -236,9 +236,10 @@ export default {
       status: 'В ожидании',
       reversedStatuses: [
         {key: 'В ожидании', value: 1},
-        {key: 'Одобрена', value: 2},
-        {key: 'Отклонена', value: 3},
-        {key: 'Удалена', value: 4},
+        {key: 'Одобренные', value: 2},
+        {key: 'Отклонённые', value: 3},
+        {key: 'Удалённые', value: 4},
+        {key: 'Завершённые', value: 5},
         {key: 'Все', value: null}
       ],
       statuses: [
@@ -246,6 +247,7 @@ export default {
         {key: 2, value: 'Одобрена'},
         {key: 3, value: 'Отклонена'},
         {key: 4, value: 'Удалена'},
+        {key: 5, value: 'Завершена'},
       ],
       dateTimeString: '',
       menu: false,

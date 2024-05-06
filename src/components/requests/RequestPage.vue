@@ -16,7 +16,7 @@
         <v-icon left>mdi-close</v-icon>
         Отклонить заявку
       </v-btn>
-      <v-btn v-if="selfRoles().includes(4) & request.status  !== 4" @click="deleteRequest">
+      <v-btn v-if="selfRoles().includes(4) & request.status  !== 4 & request.status !== 5" @click="deleteRequest">
         <v-icon left>mdi-delete</v-icon>
         Удалить заявку
       </v-btn>
@@ -104,6 +104,7 @@ export default {
         {key: 2, value: 'Одобрена'},
         {key: 3, value: 'Отклонена'},
         {key: 4, value: 'Удалена'},
+        {key: 5, value: 'Завершена'},
       ],
     }
   },
@@ -162,6 +163,9 @@ export default {
       }
     },
     async sentRequestReview(status) {
+      this.request.status=status
+      this.setupTableHeaders()
+
       const token = localStorage.getItem("userToken");
       const config = {
         headers: {"Authorization": `Bearer ${token}`},
@@ -171,7 +175,6 @@ export default {
           request_id: this.id,
           status: status,
         }, config);
-        await this.getRequest();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -181,6 +184,9 @@ export default {
       return status.value;
     },
     async deleteRequest() {
+      this.request.status = 4
+      this.setupTableHeaders()
+
       const token = localStorage.getItem("userToken");
       const config = {
         headers: {"Authorization": `Bearer ${token}`},
@@ -190,14 +196,15 @@ export default {
       } catch (error) {
         console.error('Error', error)
       }
-      await this.getRequest()
     },
     selfRoles() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
       return userData.extras.roles
     },
     async reviewStatusGuest(event,  item, status) {
-      console.log(item)
+      item.visit_status = status
+      this.setupTableHeaders()
+
       const token = localStorage.getItem("userToken");
       const config = {
         headers: {"Authorization": `Bearer ${token}`},
@@ -207,7 +214,6 @@ export default {
       } catch (error) {
         console.error('Error', error)
       }
-      await this.getRequest()
     },
     goBack() {
       this.$router.push('/requests')
