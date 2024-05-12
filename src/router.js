@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router';
 import Login from "@/components/auth/Login.vue";
 import Requests from "@/components/requests/Requests.vue";
 import Request from "@/components/requests/RequestPage.vue";
@@ -6,7 +6,7 @@ import Confirm from "@/components/confirmation/Confirm.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 import UserCreate from '@/components/admin_menu/UserCreate.vue';
 
-const router = createRouter ({
+const router = createRouter({
   history: createWebHistory(),
   routes: [
     {path: '/', component: Login},
@@ -14,8 +14,9 @@ const router = createRouter ({
     {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
     {path: '/confirm/:id', component: Confirm, props: true},
     {path: '/admin_menu', component: AdminMenu},
-      {path: '/create', component: UserCreate}
+    {path: '/create', component: UserCreate},
+    {path: '/сonfirm', component: Confirm}
   ]
-})
+});
 
 export default router;

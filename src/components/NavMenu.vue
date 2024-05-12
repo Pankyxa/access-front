@@ -25,6 +25,9 @@ export default {
     <v-app-bar-title>
       <slot name="title"></slot>
     </v-app-bar-title>
+    <v-app-bar-title>
+      <slot></slot>
+    </v-app-bar-title>
     <v-spacer></v-spacer>
     <slot name="actions"></slot>
   </v-app-bar>
