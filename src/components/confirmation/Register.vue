@@ -37,7 +37,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'Confirm',
+  name: 'Register',
   data() {
     return {
       password: '',

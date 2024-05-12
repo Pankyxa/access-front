@@ -2,20 +2,44 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from "@/components/auth/Login.vue";
 import Requests from "@/components/requests/Requests.vue";
 import Request from "@/components/requests/RequestPage.vue";
-import Confirm from "@/components/confirmation/Confirm.vue";
+import Register from "@/components/confirmation/Register.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 import UserCreate from '@/components/admin_menu/UserCreate.vue';
+import VueJwtDecode from 'vue-jwt-decode';
 
-const router = createRouter ({
+const router = createRouter({
   history: createWebHistory(),
   routes: [
-    {path: '/', component: Login},
-    {path: '/requests', component: Requests},
-    {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
-    {path: '/confirm/:id', component: Confirm, props: true},
-    {path: '/admin_menu', component: AdminMenu},
-      {path: '/create', component: UserCreate}
+    { path: '/', component: Login },
+    { path: '/requests', component: Requests },
+    { path: '/requests/:id', name: 'requestPage', component: Request, props: true },
+    { path: '/register/:id', component: Register, props: true },
+    { path: '/admin_menu', component: AdminMenu },
+    { path: '/create', component: UserCreate }
   ]
-})
+});
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('userToken');
+  console.log('Navigating from:', from.path, 'to:', to.path);
+
+  if (!token || isTokenExpired(token)) {
+    console.log('Token is invalid or expired. Redirecting to login...');
+    if (to.path !== '/') {
+      next({ path: '/' });
+    } else {
+      next();
+    }
+  } else {
+    console.log('Token is valid. Continuing navigation.');
+    next();
+  }
+});
+
+
+function isTokenExpired(token) {
+  const userData = VueJwtDecode.decode(token);
+  return userData.exp < Math.floor(Date.now() / 1000);
+}
 
 export default router;
