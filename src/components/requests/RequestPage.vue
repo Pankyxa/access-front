@@ -16,7 +16,7 @@
         <v-icon left>mdi-close</v-icon>
         Отклонить заявку
       </v-btn>
-      <v-btn v-if="selfRoles().includes(4) & request.status  !== 4 & request.status !== 5" @click="deleteRequest">
+      <v-btn v-if="selfRoles().includes(4) & request.status  !== 4 & request.status !== 5" @click="sentRequestReview(4)">
         <v-icon left>mdi-delete</v-icon>
         Удалить заявку
       </v-btn>

@@ -23,10 +23,6 @@ export default {
     redirectToCreate() {
       this.$router.push("/create");
     },
-    rolesCheck() {
-      const userData = localStorage.getItem('userToken').extras
-      return userData.roles.includes(4)
-    },
     getUserData() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken")).extras;
       this.userData = userData
@@ -106,13 +102,13 @@ export default {
         </v-list-item-icon>
         <v-list-item-title>Список заявок</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="rolesCheck" link @click="redirectToCreate">
+      <v-list-item v-if="userData.roles.includes(4)" link @click="redirectToCreate">
         <v-list-item-icon>
           <v-icon>mdi-account-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-title>Создание пользователя</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="rolesCheck" link>
+      <v-list-item v-if="userData.roles.includes(4)" link>
         <v-list-item-icon>
           <v-icon>mdi-account-edit</v-icon>
         </v-list-item-icon>
