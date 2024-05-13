@@ -7,7 +7,7 @@
             <v-toolbar-title>Завершение регистрации</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form @submit.prevent="login">
+            <v-form @submit.prevent="register">
               <v-text-field
                 v-model="password"
                 label="Пароль"
@@ -35,21 +35,34 @@
 
 <script>
 import axios from 'axios';
+import login from '@/components/auth/Login.vue';
 
 export default {
+
   name: 'Register',
+  computed: {
+    login() {
+      return login;
+    }
+  },
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       password: '',
       proof_password: ''
     };
   },
+
   methods: {
-    async login() {
+    async register() {
       try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + '/confirm', {
+        const response = await axios.post(import.meta.env.VITE_API_URL + '/register/' + this.id, {
           password: this.password,
-          proof_password: this.proof_password,
         });
         console.log('Proof successful', response);
         localStorage.setItem('userToken', response.data.token);
@@ -67,7 +80,7 @@ export default {
 <style scoped>
 .fill-height {
   height: 100vh;
-  background: url('src/components/auth/login.png') right top no-repeat fixed, linear-gradient(to right, #211c84, #4684e8) no-repeat;
+  background: url('login.png') right top no-repeat fixed, linear-gradient(to right, #211c84, #4684e8) no-repeat;
   background-size: auto 100vh;
 }
 </style>

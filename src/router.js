@@ -2,7 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router';
 import Login from "@/components/auth/Login.vue";
 import Requests from "@/components/requests/Requests.vue";
 import Request from "@/components/requests/RequestPage.vue";
-import Register from "@/components/confirmation/Register.vue";
+import Register from "@/components/auth/Register.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 import UserCreate from '@/components/admin_menu/UserCreate.vue';
 import VueJwtDecode from 'vue-jwt-decode';
@@ -10,12 +10,13 @@ import VueJwtDecode from 'vue-jwt-decode';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', component: Login },
-    { path: '/requests', component: Requests },
-    { path: '/requests/:id', name: 'requestPage', component: Request, props: true },
-    { path: '/register/:id', component: Register, props: true },
-    { path: '/admin_menu', component: AdminMenu },
-    { path: '/create', component: UserCreate }
+    {path: '/', component: Login},
+    {path: '/requests', component: Requests},
+    {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
+    {path: '/register/:id', component: Register, props: true},
+    {path: '/admin_menu', component: AdminMenu},
+    {path: '/create', component: UserCreate}
+
   ]
 });
 
@@ -26,7 +27,7 @@ router.beforeEach((to, from, next) => {
   if (!token || isTokenExpired(token)) {
     console.log('Token is invalid or expired. Redirecting to login...');
     if (to.path !== '/') {
-      next({ path: '/' });
+      next({path: '/'});
     } else {
       next();
     }
