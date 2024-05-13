@@ -14,9 +14,23 @@
             <v-card-text>
               <v-form @submit.prevent="userCreate">
                 <v-text-field
+                  v-model="surname"
+                  :error-messages="surnameErrors"
+                  label="Фамилия"
+                  type="text"
+                  required
+                ></v-text-field>
+                <v-text-field
                   v-model="name"
                   :error-messages="nameErrors"
-                  label="ФИО"
+                  label="Имя"
+                  type="text"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  v-model="secondname"
+                  :error-messages="secondnameErrors"
+                  label="Отчество"
                   type="text"
                   required
                 ></v-text-field>
@@ -58,10 +72,14 @@ export default {
   data() {
     return {
       name: "",
+      surname: "",
+      secondname: "",
       email: "",
       role: ["Охранник", "Начальник охраны", "Админ"],
       select: [],
       nameErrors: [],
+      surnameErrors: [],
+      secondnameErrors: [],
       emailErrors: [],
       roleErrors: [],
       enumRoles: [
@@ -74,11 +92,19 @@ export default {
   methods: {
     async userCreate() {
       this.nameErrors = [];
+      this.surnameErrors = [];
+      this.secondnameErrors = [];
       this.emailErrors = [];
       this.roleErrors = [];
 
+      if (!this.surname) {
+        this.surnameErrors.push('Поле Фамилия обязательно для заполнения');
+      }
       if (!this.name) {
-        this.nameErrors.push('Поле ФИО обязательно для заполнения');
+        this.nameErrors.push('Поле Имя обязательно для заполнения');
+      }
+      if (!this.secondname) {
+        this.secondnameErrors.push('Поле Отчество обязательно для заполнения');
       }
       if (!this.email) {
         this.emailErrors.push('Поле Почта обязательно для заполнения');
@@ -87,11 +113,11 @@ export default {
         this.roleErrors.push('Выберите хотя бы одну роль');
       }
 
-      if (this.nameErrors.length === 0 && this.emailErrors.length === 0 && this.roleErrors.length === 0) {
+      if (this.nameErrors.length === 0 && this.surnameErrors.length === 0 && this.secondnameErrors.length === 0 && this.emailErrors.length === 0 && this.roleErrors.length === 0) {
         const token = localStorage.getItem("userToken");
         const config = {headers: {authorization: `Bearer ${token}`}};
         const data = {
-          full_name: this.name,
+          full_name: this.surname + " " + this.name + " " + this.secondname,
           email: this.email,
           roles: [
             ...[1],
