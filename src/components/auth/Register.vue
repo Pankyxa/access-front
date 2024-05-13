@@ -10,15 +10,23 @@
             <v-form @submit.prevent="register">
               <v-text-field
                 v-model="password"
+                :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                :rules="[rules.matchPasswords, rules.required, rules.min]"
+                :type="show1 ? 'text' : 'password'"
+                @click:append="show1=!show1"
                 label="Пароль"
                 prepend-icon="mdi-lock"
-                type="password"
+                required
               ></v-text-field>
               <v-text-field
                 v-model="proof_password"
+                :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                :rules="[rules.required, rules.min, rules.matchPasswords]"
+                :type="show2 ? 'text' : 'password'"
+                @click:append="show2=!show2"
                 label="Подтвердите пароль"
                 prepend-icon="mdi-lock"
-                type="password"
+                required
               ></v-text-field>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -35,26 +43,29 @@
 
 <script>
 import axios from 'axios';
-import login from '@/components/auth/Login.vue';
 
 export default {
-
   name: 'Register',
-  computed: {
-    login() {
-      return login;
-    }
-  },
   props: {
     id: {
       type: String,
       required: true
     }
   },
+
+
   data() {
     return {
       password: '',
-      proof_password: ''
+      proof_password: '',
+      show1: false,
+      show2: false,
+      rules: {
+        required: value => !!value || 'Required.',
+        min: v => v.length >= 8 || 'Минимум 8 символов',
+        matchPasswords: v => v === this.password || (`Пароли не совпадают`),
+
+      },
     };
   },
 
@@ -84,6 +95,3 @@ export default {
   background-size: auto 100vh;
 }
 </style>
-
-
-
