@@ -67,7 +67,7 @@
                           v-for="(guest, index) in guests"
                           :key="guest.id"
                           cols="12"
-                          sm="6"
+                          :sm="guests.length > 1 && index === guests.length - 1 ? 5 : 6"
                         >
                           <div class="d-flex align-center justify-space-between">
                             <v-btn

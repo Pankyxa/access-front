@@ -1,5 +1,5 @@
 <template>
-  <v-container class="fill-height" fluid>
+  <v-app>
     <nav-menu>
       <template v-slot:title>Создание пользователя</template>
     </nav-menu>
@@ -45,7 +45,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </v-container>
+  </v-app>
 </template>
 
 <script>
