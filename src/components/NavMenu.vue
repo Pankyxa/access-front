@@ -1,5 +1,5 @@
 <script>
-import VueJwtDecode from 'vue-jwt-decode'
+import VueJwtDecode from 'vue-jwt-decode';
 
 export default {
   name: 'NavMenu',
@@ -25,15 +25,17 @@ export default {
     },
     getUserData() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken")).extras;
-      this.userData = userData
+      this.userData = userData;
+      console.log(this.userData);
     },
     exit() {
-      localStorage.removeItem('userToken')
-      this.$router.push('/')
+      localStorage.removeItem('userToken');
+      this.$router.push('/');
     }
   },
   mounted() {
-    this.getUserData()
+    this.getUserData();
+
   }
 };
 </script>
@@ -59,7 +61,9 @@ export default {
       <template v-slot:activator="{props: menuActivator}">
         <v-btn v-if="userData" v-bind="menuActivator">
           <v-icon left>mdi-account</v-icon>
-          {{ userData.full_name.split(' ')[0]+ ' ' + userData.full_name.split(' ')[1][0] + '.' + userData.full_name.split(' ')[2][0] + '.' }}
+          {{
+            userData.full_name.split(' ')[0] + ' ' + userData.full_name.split(' ')[1][0] + '.' + userData.full_name.split(' ')[2][0] + '.'
+          }}
         </v-btn>
       </template>
 
@@ -80,7 +84,9 @@ export default {
           </div>
           <div>
             <strong>Роли</strong>:
-            <v-chip v-for="(item, index) in userData.roles" :key="index" class="role-chip">{{ enumRoles.find((enumItem) => enumItem.key === item).value }}</v-chip>
+            <v-chip v-for="(item, index) in userData.roles" :key="index" class="role-chip">
+              {{ enumRoles.find((enumItem) => enumItem.key === item).value }}
+            </v-chip>
           </div>
           <div style="position: absolute; bottom: 8px; right: 8px;">
             <v-btn color="red" @click="exit">
@@ -102,13 +108,13 @@ export default {
         </v-list-item-icon>
         <v-list-item-title>Список заявок</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="userData.roles.includes(4)" link @click="redirectToCreate">
+      <v-list-item v-if="userData && userData.roles.includes(4)" link @click="redirectToCreate">
         <v-list-item-icon>
           <v-icon>mdi-account-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-title>Создание пользователя</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="userData.roles.includes(4)" link>
+      <v-list-item v-if="userData && userData.roles.includes(4)" link>
         <v-list-item-icon>
           <v-icon>mdi-account-edit</v-icon>
         </v-list-item-icon>
