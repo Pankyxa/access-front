@@ -29,6 +29,8 @@ export default {
     },
     exit() {
       localStorage.removeItem('userToken')
+      sessionStorage.removeItem('currentPage')
+      sessionStorage.removeItem('filterState')
       this.$router.push('/')
     }
   },
@@ -40,7 +42,7 @@ export default {
 
 <template>
   <v-app-bar :style="{ backgroundColor: 'rgba(25, 118, 210, 0.5)' }">
-    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon v-if="userData.roles.includes(4)" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     <v-app-bar-title>
       <slot name="title"></slot>
     </v-app-bar-title>

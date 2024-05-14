@@ -47,7 +47,6 @@
                   label="Роль"
                   chips
                   multiple
-                  :error-messages="roleErrors"
                   required
                 ></v-combobox>
                 <v-card-actions>
@@ -109,11 +108,8 @@ export default {
       if (!this.email) {
         this.emailErrors.push('Поле Почта обязательно для заполнения');
       }
-      if (this.select.length === 0) {
-        this.roleErrors.push('Выберите хотя бы одну роль');
-      }
 
-      if (this.nameErrors.length === 0 && this.surnameErrors.length === 0 && this.secondnameErrors.length === 0 && this.emailErrors.length === 0 && this.roleErrors.length === 0) {
+      if (this.nameErrors.length === 0 && this.surnameErrors.length === 0 && this.secondnameErrors.length === 0 && this.emailErrors.length === 0) {
         const token = localStorage.getItem("userToken");
         const config = {headers: {authorization: `Bearer ${token}`}};
         const data = {

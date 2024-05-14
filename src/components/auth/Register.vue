@@ -61,7 +61,7 @@ export default {
       show1: false,
       show2: false,
       rules: {
-        required: value => !!value || 'Required.',
+        required: value => !!value || 'Введите пароль',
         min: v => v.length >= 8 || 'Минимум 8 символов',
         matchPasswords: v => v === this.password || (`Пароли не совпадают`),
 

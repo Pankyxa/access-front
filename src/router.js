@@ -27,6 +27,9 @@ router.beforeEach((to, from, next) => {
   if (!token || isTokenExpired(token)) {
     console.log('Token is invalid or expired. Redirecting to login...');
     if (to.path !== '/') {
+      localStorage.removeItem('userToken')
+      sessionStorage.removeItem('currentPage')
+      sessionStorage.removeItem('filterState')
       next({path: '/'});
     } else {
       next();
