@@ -1,4 +1,15 @@
 <template>
+  <v-dialog v-bind="dialog">
+    <v-card>
+      <v-card-text>Вы были заблокировны. Если вас заблокировали по ошибке, обратитесь к системному администратору</v-card-text>
+      <v-card-actions>
+        <v-btn
+          color="green darken-1"
+          @click="closeTab"
+        >Ок</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
@@ -35,13 +46,16 @@
 
 <script>
 import axios from 'axios';
+import VueJwtDecode from 'vue-jwt-decode'
 
 export default {
   name: 'Login',
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      userData: null,
+      dialog: false,
     };
   },
   methods: {
@@ -53,11 +67,22 @@ export default {
         });
         console.log('Login successful', response);
         localStorage.setItem('userToken', response.data.token);
-        this.$router.push('/requests');
+        const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
+        this.userData = userData.extras
+        console.log(this.userDate)
+        if (this.userData.status === 2) {
+          this.$router.push('/requests')
+        } else { if (this.userData.status === 3) {
+          this.dialog = true
+        }
+        }
       } catch (error) {
         console.error('Login failed', error);
         alert("Ошибка входа: " + error.message);
       }
+    },
+    closeTab() {
+      window.close()
     }
   }
 };
