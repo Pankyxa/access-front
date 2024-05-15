@@ -72,7 +72,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red darken-1" @click="sentRequestReview(4); isActive.value = false">Удалить заявку</v-btn>
+              <v-btn color="red darken-1" @click="sentRequestReview(4); isActive.value = false; snackbarDelete = true">Удалить заявку</v-btn>
               <v-btn @click="isActive.value = false">Отмена</v-btn>
             </v-card-actions>
           </v-card>
@@ -81,6 +81,15 @@
     </v-app-bar>
 
     <v-main>
+      <v-snackbar
+        v-model="snackbarConfirm"
+        timeout="3000"
+      >Заявка успешно рассмотрена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarDelete"
+        timeout="3000"
+      >Заявка успешно удалена</v-snackbar>
+
       <v-container class="fill-height">
         <v-row v-if="!isLoading && request" class="fill-height">
           <v-col cols="6">
@@ -164,6 +173,8 @@ export default {
       ],
       comment: '',
       confirmDialog: false,
+      snackbarConfirm: false,
+      snackbarDelete: false,
     }
   },
   methods: {
@@ -223,6 +234,10 @@ export default {
       this.request.status=status
       this.request.comment=this.comment
       this.setupTableHeaders()
+      console.log(status)
+      if (status === 2) {
+        this.snackbarConfirm = true
+      }
 
       const token = localStorage.getItem("userToken");
       const config = {
