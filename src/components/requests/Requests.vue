@@ -82,16 +82,21 @@
                             >
                               {{ guest.full_name }}
                             </v-btn>
-                            <v-btn
-                              v-if="
-                              guests.length > 1 && index === guests.length - 1
-                            "
-                              @click="removeGuest(index)"
-                              color="red"
-                            >
-                              <v-icon>mdi-delete</v-icon>
-                            </v-btn>
                           </div>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="1"
+                          v-if="guests.length > 1"
+                        >
+                          <v-btn
+                            min-width="51px"
+                            max-width="51px"
+                            @click="removeGuest(guest.length - 1)"
+                            color="red"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
                         </v-col>
                         <v-col v-if="guests.length < 10" cols="12" sm="6">
                           <v-btn @click="addGuest" block color="green">
@@ -122,7 +127,7 @@
                 ></v-btn>
                 <v-btn
                   text="Отмена"
-                  @click="isActive.value = false"
+                  @click="isActive.value = false; guests = [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}]"
                 ></v-btn>
               </v-card-actions>
             </v-card>
@@ -402,7 +407,7 @@ export default {
     restoreFilterState() {
       const state = sessionStorage.getItem('filterState');
       if (state) {
-        const { status, appellant, guest, currentPage } = JSON.parse(state);
+        const {status, appellant, guest, currentPage} = JSON.parse(state);
         this.status = status;
         this.appellant = appellant;
         this.guest = guest;

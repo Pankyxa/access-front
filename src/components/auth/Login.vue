@@ -21,6 +21,7 @@
                 type="password"
               ></v-text-field>
               <v-card-actions>
+                <v-btn color="primary" type="submit" text @click="forgotPasswordDialog = true">Забыли пароль?</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn color="primary" type="submit">Войти</v-btn>
               </v-card-actions>
@@ -29,9 +30,31 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-dialog v-model="forgotPasswordDialog" persistent max-width="500px">
+      <v-card>
+        <v-toolbar color="primary" dark flat>
+          <v-toolbar-title>Восстановление пароля</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="forgotPasswordDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-text-field
+            v-model="forgotPasswordEmail"
+            label="Email"
+            prepend-icon="mdi-email"
+            type="email"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="sendPasswordResetEmail">Готово</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -41,7 +64,9 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      forgotPasswordDialog: false,
+      forgotPasswordEmail: ''
     };
   },
   methods: {
@@ -58,11 +83,20 @@ export default {
         console.error('Login failed', error);
         alert("Ошибка входа: " + error.message);
       }
+    },
+    async sendPasswordResetEmail() {
+      try {
+        console.log('Password reset email sent to:', this.forgotPasswordEmail);
+        alert("Вам на почту пришло письмо для восстановления пароля");
+        this.forgotPasswordDialog = false;
+      } catch (error) {
+        console.error('Failed to send password reset email', error);
+        alert("Ошибка отправки письма для восстановления пароля: " + error.message);
+      }
     }
   }
 };
 </script>
-
 
 <style scoped>
 .fill-height {
@@ -71,6 +105,3 @@ export default {
   background-size: auto 100vh;
 }
 </style>
-
-
-

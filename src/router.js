@@ -6,6 +6,7 @@ import Register from "@/components/auth/Register.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 import UserCreate from '@/components/admin_menu/UserCreate.vue';
 import VueJwtDecode from 'vue-jwt-decode';
+import Recovery from '@/components/auth/Recovery.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,7 +16,8 @@ const router = createRouter({
     {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
     {path: '/register/:id', component: Register, props: true},
     {path: '/admin_menu', component: AdminMenu},
-    {path: '/create', component: UserCreate}
+    {path: '/create', component: UserCreate},
+    {path: '/recovery', component: Recovery},
 
   ]
 });
@@ -27,6 +29,9 @@ router.beforeEach((to, from, next) => {
   if (!token || isTokenExpired(token)) {
     console.log('Token is invalid or expired. Redirecting to login...');
     if (to.path !== '/') {
+      localStorage.removeItem('userToken');
+      sessionStorage.removeItem('currentPage');
+      sessionStorage.removeItem('filterState');
       next({path: '/'});
     } else {
       next();

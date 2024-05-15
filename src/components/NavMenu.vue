@@ -24,25 +24,25 @@ export default {
       this.$router.push("/create");
     },
     getUserData() {
-      const userData = VueJwtDecode.decode(localStorage.getItem("userToken")).extras;
-      this.userData = userData;
-      console.log(this.userData);
+      const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
+      this.userData = userData.extras;
     },
     exit() {
       localStorage.removeItem('userToken');
+      sessionStorage.removeItem('currentPage');
+      sessionStorage.removeItem('filterState');
       this.$router.push('/');
     }
   },
   mounted() {
     this.getUserData();
-
   }
 };
 </script>
 
 <template>
   <v-app-bar :style="{ backgroundColor: 'rgba(25, 118, 210, 0.5)' }">
-    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon v-if="userData?.roles.includes(4)" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     <v-app-bar-title>
       <slot name="title"></slot>
     </v-app-bar-title>
@@ -84,7 +84,7 @@ export default {
           </div>
           <div>
             <strong>Роли</strong>:
-            <v-chip v-for="(item, index) in userData.roles" :key="index" class="role-chip">
+            <v-chip v-for="(item, index) in userData?.roles" :key="index" class="role-chip">
               {{ enumRoles.find((enumItem) => enumItem.key === item).value }}
             </v-chip>
           </div>
@@ -108,13 +108,13 @@ export default {
         </v-list-item-icon>
         <v-list-item-title>Список заявок</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="userData && userData.roles.includes(4)" link @click="redirectToCreate">
+      <v-list-item v-if="userData?.roles.includes(4)" link @click="redirectToCreate">
         <v-list-item-icon>
           <v-icon>mdi-account-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-title>Создание пользователя</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="userData && userData.roles.includes(4)" link>
+      <v-list-item v-if="userData?.roles.includes(4)" link>
         <v-list-item-icon>
           <v-icon>mdi-account-edit</v-icon>
         </v-list-item-icon>
