@@ -84,10 +84,12 @@
       <v-snackbar
         v-model="snackbarConfirm"
         timeout="3000"
+        class="text-center"
       >Заявка успешно рассмотрена</v-snackbar>
       <v-snackbar
         v-model="snackbarDelete"
         timeout="3000"
+        class="text-center"
       >Заявка успешно удалена</v-snackbar>
 
       <v-container class="fill-height">

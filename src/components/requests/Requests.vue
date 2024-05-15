@@ -184,6 +184,7 @@
       <v-snackbar
         v-model="snackbar"
         :timeout="3000"
+        class="text-center"
       >Ваша заявка успешно отправлена на рассмотрение
       </v-snackbar>
       <v-data-table
