@@ -47,7 +47,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red darken-1" @click="sentRequestReview(3); isActive.value = false">Отклонить заявку</v-btn>
+              <v-btn color="red darken-1" @click="sentRequestReview(3); isActive.value = false; snackbarReject= true">Отклонить заявку</v-btn>
               <v-btn @click="isActive.value = false">Отмена</v-btn>
             </v-card-actions>
           </v-card>
@@ -85,12 +85,25 @@
         v-model="snackbarConfirm"
         timeout="3000"
         class="text-center"
-      >Заявка успешно рассмотрена</v-snackbar>
+      >Заявка рассмотрена</v-snackbar>
       <v-snackbar
         v-model="snackbarDelete"
         timeout="3000"
         class="text-center"
-      >Заявка успешно удалена</v-snackbar>
+      >Заявка удалена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarReject"
+        timeout="3000"
+        class="text-center"
+      >Заявка отклонена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarCompleted"
+        timeout="3000"
+        class="text-center"
+      >Заявка завершена</v-snackbar>
+
+      
+
 
       <v-container class="fill-height">
         <v-row v-if="!isLoading && request" class="fill-height">
@@ -131,7 +144,7 @@
                   <v-btn
                     v-if="item.visit_status === 2"
                     color="red"
-                    @click="reviewStatusGuest($event, item, 3)"
+                    @click="reviewStatusGuest($event, item, 3); snackbarCompleted = true"
                   >Вышел</v-btn>
                 </template>
               </v-data-table>
@@ -177,6 +190,8 @@ export default {
       confirmDialog: false,
       snackbarConfirm: false,
       snackbarDelete: false,
+      snackbarReject: false,
+      snackbarCompleted: false,
     }
   },
   methods: {
@@ -240,7 +255,12 @@ export default {
       if (status === 2) {
         this.snackbarConfirm = true
       }
-
+      if (status === 4) {
+        this.snackbarDelete = true
+      }
+      if (status === 3) {
+        this.snackbarReject = true
+      }
       const token = localStorage.getItem("userToken");
       const config = {
         headers: {"Authorization": `Bearer ${token}`},

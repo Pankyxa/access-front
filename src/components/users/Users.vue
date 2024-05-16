@@ -43,11 +43,15 @@ export default {
         {key: "Охранник", value: 2},
         {key: "Начальник охраны", value: 3},
         {key: "Админ", value: 4},
-      ],
+       ],
       dialogChanges: false,
       selectUser: null,
       dialogBlock: false,
-      dialogUnblock: false,
+      dialogUnblock: false,     
+      snackbarBlock: false,
+      snackbarUnBlock: false,
+      snackbarCreateUser: false,
+      snackbarChangeUser: false,
     }
   },
   methods: {
@@ -224,7 +228,7 @@ export default {
                 ></v-combobox>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" @click="userCreate(); isActive.value = false">Создать</v-btn>
+                  <v-btn color="green darken-1" @click="userCreate(); snackbarCreateUser = true; isActive.value = false">Создать</v-btn>
                   <v-btn @click="isActive.value = false">Отмена</v-btn>
                 </v-card-actions>
               </v-card-text>
@@ -235,6 +239,26 @@ export default {
     </nav-menu>
 
     <v-main>
+      <v-snackbar
+        v-model="snackbarBlock"
+        timeout="3000"
+        class="text-center"
+      >Пользователь заблокирован</v-snackbar>
+      <v-snackbar
+        v-model="snackbarUnBlock"
+        timeout="3000"
+        class="text-center"
+      >Пользователь разблокирован</v-snackbar>
+      <v-snackbar
+        v-model="snackbarCreateUser"
+        timeout="3000"
+        class="text-center"
+      >Пользователь добавлен</v-snackbar>
+      <v-snackbar
+        v-model="snackbarChangeUser"
+        timeout="3000"
+        class="text-center"
+      >Роль пользователя изменена</v-snackbar>
       <v-dialog
         v-model="dialogChanges"
         max-width="600"
@@ -266,7 +290,7 @@ export default {
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" @click="dialogChanges = false; changeRoles()">Изменить</v-btn>
+            <v-btn color="green darken-1" @click="dialogChanges = false; changeRoles(); snackbarChangeUser = true">Изменить</v-btn>
             <v-btn @click="dialogChanges = false">Отмена</v-btn>
           </v-card-actions>
         </v-card>
@@ -278,7 +302,7 @@ export default {
           <v-card-text>Вы уверены, что хотите заблокировать пользовтеля? Он потеряет доступ к сайту.</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="red darken-1" @click="dialogBlock = false; blockUser()">Да</v-btn>
+            <v-btn color="red darken-1" @click="dialogBlock = false; blockUser(); snackbarBlock = true">Да</v-btn>
             <v-btn @click="dialogBlock = false">Отмена</v-btn>
           </v-card-actions>
         </v-card>
@@ -315,7 +339,7 @@ export default {
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" @click="dialogUnblock = false; changeRoles()">Разблокировать</v-btn>
+            <v-btn color="green darken-1" @click="dialogUnblock = false; changeRoles(); snackbarUnBlock = true">Разблокировать</v-btn>
             <v-btn @click="dialogUnblock = false">Отмена</v-btn>
           </v-card-actions>
         </v-card>
