@@ -23,27 +23,33 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('userToken');
-  const userData = VueJwtDecode.decode(localStorage.getItem('userToken')).extras;
+  let userData = null;
+
+  if (token) {
+    const decodeToken = VueJwtDecode.decode(token);
+    userData = decodeToken.extras;
+  }
+
   console.log('Navigating from:', from.path, 'to:', to.path);
 
   if (!token || isTokenExpired(token)) {
     console.log('Token is invalid or expired. Redirecting to login...');
     if (to.path !== '/') {
-      localStorage.removeItem('userToken')
-      sessionStorage.removeItem('currentPage')
-      sessionStorage.removeItem('filterState')
-      next({path: '/'});
+      localStorage.removeItem('userToken');
+      sessionStorage.removeItem('currentPage');
+      sessionStorage.removeItem('filterState');
+      next({ path: '/' });
     } else {
       next();
     }
   } else {
-    if (userData.status === 3) {
-      console.log('User is blocked. Redirecting to login...')
+    if (userData?.status === 3) {
+      console.log('User is blocked. Redirecting to login...');
       if (to.path !== '/') {
-        localStorage.removeItem('userToken')
-        sessionStorage.removeItem('currentPage')
-        sessionStorage.removeItem('filterState')
-        next({path: '/'});
+        localStorage.removeItem('userToken');
+        sessionStorage.removeItem('currentPage');
+        sessionStorage.removeItem('filterState');
+        next({ path: '/' });
       } else {
         next();
       }
@@ -53,7 +59,6 @@ router.beforeEach((to, from, next) => {
     }
   }
 });
-
 
 function isTokenExpired(token) {
   const userData = VueJwtDecode.decode(token);
