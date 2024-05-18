@@ -79,12 +79,11 @@ export default {
             email: this.email,
             password: this.password,
           });
-          console.log('Login successful', response);
           localStorage.setItem('userToken', response.data.token);
           const userData = VueJwtDecode.decode(localStorage.getItem('userToken'));
           this.userData = userData.extras;
-          console.log(this.userData.status);
           if (this.userData.status === 2) {
+            console.log('Login successful', response);
             this.$router.push('/requests');
           } else if (this.userData.status === 3) {
             this.dialog = true;

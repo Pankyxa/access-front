@@ -17,13 +17,13 @@ const router = createRouter({
     {path: '/register/:id', component: Register, props: true},
     {path: '/admin_menu', component: AdminMenu},
     {path: '/create', component: UserCreate},
-    {path: '/users', component: Users}
-
+    {path: '/users', component: Users},
   ]
 });
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('userToken');
+  const userData = VueJwtDecode.decode(localStorage.getItem('userToken')).extras;
   console.log('Navigating from:', from.path, 'to:', to.path);
 
   if (!token || isTokenExpired(token)) {
@@ -37,8 +37,20 @@ router.beforeEach((to, from, next) => {
       next();
     }
   } else {
-    console.log('Token is valid. Continuing navigation.');
-    next();
+    if (userData.status === 3) {
+      console.log('User is blocked. Redirecting to login...')
+      if (to.path !== '/') {
+        localStorage.removeItem('userToken')
+        sessionStorage.removeItem('currentPage')
+        sessionStorage.removeItem('filterState')
+        next({path: '/'});
+      } else {
+        next();
+      }
+    } else {
+      console.log('Token is valid. Continuing navigation.');
+      next();
+    }
   }
 });
 
