@@ -16,9 +16,11 @@
     "vue": "^3.4.0",
     "vue-jwt-decode": "^0.1.0",
     "vue-router": "^4.3.2",
+    "vue-the-mask": "^0.11.1",
     "vuetify": "^3.5.0"
   },
   "devDependencies": {
+    "@types/vue-the-mask": "^0.11.5",
     "@vitejs/plugin-vue": "^5.0.4",
     "sass": "^1.71.1",
     "unplugin-fonts": "^1.1.1",
