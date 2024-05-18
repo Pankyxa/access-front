@@ -5,7 +5,7 @@
       <v-card-actions>
         <v-btn
           color="green darken-1"
-          @click="closeTab"
+          @click="dialog = false"
         >Ок</v-btn>
       </v-card-actions>
     </v-card>
@@ -24,12 +24,14 @@
                 label="Email"
                 prepend-icon="mdi-account"
                 type="email"
+                :rules="[rules.required, rules.email]"
               ></v-text-field>
               <v-text-field
                 v-model="password"
                 label="Пароль"
                 prepend-icon="mdi-lock"
                 type="password"
+                :rules="[rules.required]"
               ></v-text-field>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -56,26 +58,32 @@ export default {
       password: '',
       userData: null,
       dialog: false,
+      rules: {
+        required: value => !!value || 'Поле обязательно для заполнения',
+        email: value => {
+              const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return pattern.test(value) || 'Введите корректный адрес электронной почты';
+        }
+    },
     };
   },
   methods: {
-    async login() {
-      try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + '/login', {
-          email: this.email,
-          password: this.password
-        });
-        console.log('Login successful', response);
-        localStorage.setItem('userToken', response.data.token);
-        this.$router.push('/requests')
-      } catch (error) {
-        console.error('Login failed', error);
-        alert("Ошибка входа: " + error.message);
+    async login() { 
+    if(this.email && this.password) { 
+        try {
+          const response = await axios.post(import.meta.env.VITE_API_URL + '/login', {
+            email: this.email,
+            password: this.password
+          });
+          console.log('Login successful', response);
+          localStorage.setItem('userToken', response.data.token);
+          this.$router.push('/requests')
+        } catch (error) {
+          console.error('Login failed', error);
+          alert("Ошибка входа: " + error.message);
+        }
       }
-    },
-    closeTab() {
-      window.close()
-    }
+    },   
   }
 };
 </script>
