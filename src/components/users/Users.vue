@@ -13,6 +13,14 @@ export default {
       users: [],
       headers: [],
       role: null,
+      isFormValid: false,
+      rules: {
+    required: value => !!value || 'Поле обязательно для заполнения',
+    email: value => {
+          const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return pattern.test(value) || 'Введите корректный адрес электронной почты';
+    }
+    },
       enumRoles: [
         {key: 'employee', value: "Сотрудник"},
         {key: 'security', value: "Охранник"},
@@ -89,47 +97,30 @@ export default {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
       this.userData = userData.extras
     },
-    async userCreate() {
-      this.nameErrors = [];
-      this.surnameErrors = [];
-      this.secondNameErrors = [];
-      this.emailErrors = [];
-      this.roleErrors = [];
-
-      if (!this.surname) {
-        this.surnameErrors.push('Поле Фамилия обязательно для заполнения');
-      }
-      if (!this.name) {
-        this.nameErrors.push('Поле Имя обязательно для заполнения');
-      }
-      if (!this.secondName) {
-        this.secondNameErrors.push('Поле Отчество обязательно для заполнения');
-      }
-      if (!this.email) {
-        this.emailErrors.push('Поле Почта обязательно для заполнения');
-      }
-
-      if (this.nameErrors.length === 0 && this.surnameErrors.length === 0 && this.secondNameErrors.length === 0 && this.emailErrors.length === 0) {
-        const token = localStorage.getItem("userToken");
-        const config = {headers: {authorization: `Bearer ${token}`}};
-        const data = {
-          full_name: this.surname + " " + this.name + " " + this.secondName,
-          email: this.email,
-          roles: [
-            ...[1],
-            ...this.select.map((key) => {
-              const item = this.reversedEnumRoles.find(
-                (enumItem) => enumItem.key === key,
-              );
-              return item.value;
-            }),
-          ],
-        };
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}users/create`,
-          data,
-          config,
-        );
+    async userCreate(isActive) {
+        if (this.surname && this.name && this.secondName && this.email) {
+          isActive.value = false;
+          this.snackbarCreateUser = true;
+          const token = localStorage.getItem("userToken");
+          const config = {headers: {authorization: `Bearer ${token}`}};
+          const data = {
+            full_name: this.surname + " " + this.name + " " + this.secondName,
+            email: this.email,
+            roles: [
+              ...[1],
+              ...this.select.map((key) => {
+                const item = this.reversedEnumRoles.find(
+                  (enumItem) => enumItem.key === key,
+                );
+                return item.value;
+              }),
+            ],
+          };
+          await axios.post(
+            `${import.meta.env.VITE_API_URL}users/create`,
+            data,
+            config,
+          );
       }
       await this.getUsers()
     },
@@ -167,8 +158,9 @@ export default {
   mounted() {
     this.getUsers()
     this.getUserData()
+  },  
   }
-}
+
 </script>
 
 <template>
@@ -193,13 +185,15 @@ export default {
                 <v-text-field
                   v-model="surname"
                   :error-messages="surnameErrors"
+                  :rules="[rules.required]"                  
                   label="Фамилия"
                   type="text"
                   required
                 ></v-text-field>
                 <v-text-field
                   v-model="name"
-                  :error-messages="nameErrors"
+                  :error-messages="nameErrors" 
+                  :rules="[rules.required]"                 
                   label="Имя"
                   type="text"
                   required
@@ -207,6 +201,7 @@ export default {
                 <v-text-field
                   v-model="secondName"
                   :error-messages="secondNameErrors"
+                  :rules="[rules.required]" 
                   label="Отчество"
                   type="text"
                   required
@@ -214,6 +209,7 @@ export default {
                 <v-text-field
                   v-model="email"
                   :error-messages="emailErrors"
+                  :rules="[rules.required, rules.email]" 
                   label="Почта"
                   type="email"
                   required
@@ -221,6 +217,7 @@ export default {
                 <v-combobox
                   v-model="select"
                   :items="roles"
+                  :rules="[rules.required]" 
                   label="Роли"
                   chips
                   multiple
@@ -228,7 +225,7 @@ export default {
                 ></v-combobox>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" @click="userCreate(); snackbarCreateUser = true; isActive.value = false">Создать</v-btn>
+                  <v-btn color="green darken-1" @click="userCreate(isActive)">Создать</v-btn>
                   <v-btn @click="isActive.value = false">Отмена</v-btn>
                 </v-card-actions>
               </v-card-text>

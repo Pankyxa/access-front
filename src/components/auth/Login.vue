@@ -52,7 +52,7 @@
 
 <script>
 import axios from 'axios';
-import VueJwtDecode from 'vue-jwt-decode';
+import VueJwtDecode from 'vue-jwt-decode'
 
 export default {
   name: 'Login',
@@ -61,7 +61,8 @@ export default {
       email: '',
       password: '',
       userData: null,
-      dialog: false, rules: {
+      dialog: false,
+      rules: {
         required: value => !!value || 'Поле обязательно для заполнения',
         email: value => {
           const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -106,3 +107,6 @@ export default {
   background-size: auto 100vh;
 }
 </style>
+
+
+
