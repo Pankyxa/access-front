@@ -4,7 +4,7 @@
       <template v-slot:title>Заявки</template>
       <template v-slot:actions>
         <v-dialog max-width="1000">
-          <template v-slot:activator="{props: activatorProps}">
+          <template v-slot:activator="{ props: activatorProps }">
             <v-btn v-bind="activatorProps" color="green">
               <v-icon left>mdi-plus</v-icon>
               Создать заявку
@@ -12,16 +12,22 @@
           </template>
 
           <template v-slot:default="{ isActive }">
+            <v-snackbar
+              v-model="snackbarDownload"
+              timeout="3000"
+            >Шаблон успешно скачан</v-snackbar>
             <v-card title="Новая заявка">
               <v-card-text>
                 <v-text-field
                   label="Место визита"
                   v-model="placeOfVisit"
+                  :rules="[rules.required]"
                 ></v-text-field>
 
                 <v-text-field
                   label="Цель визита"
                   v-model="visitPurpose"
+                  :rules="[rules.required]"
                 ></v-text-field>
 
                 <v-menu :close-on-content-click="false" v-model="menu">
@@ -30,6 +36,7 @@
                       label="Дата визита"
                       v-bind="menuDate"
                       v-model="datetimeStr"
+                      :rules="[rules.required]"
                     ></v-text-field>
                   </template>
 
@@ -50,15 +57,23 @@
                   </v-card>
                 </v-menu>
 
-                <v-card>
+                <v-card v-if="guestCard">
                   <v-card-title>
-                    Гости
-                    <v-tooltip right>
-                      <template v-slot:activator="{ props: tooltip }">
-                        <v-icon v-bind="tooltip">mdi-information</v-icon>
-                      </template>
-                      <span>Если количество гостей больше 10, воспользуйтесь загрузкой файла</span>
-                    </v-tooltip>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                      <div>
+                        Гости
+                        <v-tooltip right>
+                          <template v-slot:activator="{ props: tooltip }">
+                            <v-icon v-bind="tooltip">mdi-information</v-icon>
+                          </template>
+                          <span>Если количество гостей больше 10, воспользуйтесь загрузкой файла</span>
+                        </v-tooltip>
+                      </div>
+                      <v-btn color="primary" style="margin-left: auto;" @click="guestCard=false">
+                        <v-icon size="small">mdi-upload</v-icon>
+                        Загрузка файлом
+                      </v-btn>
+                    </div>
                   </v-card-title>
                   <v-card-text>
                     <v-container>
@@ -107,12 +122,62 @@
                       <v-row v-if="selectedGuest !== null">
                         <v-col cols="12">
                           <h3>Заполните данные для гостя: {{ guests[selectedGuest].full_name }}</h3>
-                          <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО"></v-text-field>
-                          <v-text-field v-model="guests[selectedGuest].phone_number" label="Телефон"></v-text-field>
-                          <v-text-field v-model="guests[selectedGuest].email" label="Почта"></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО" :rules="[rules.required]"></v-text-field>
+                          <v-text-field
+                            v-model="guests[selectedGuest].phone_number"
+                            label="Телефон"
+                            :rules="[rules.required]"
+                          ></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].email" label="Почта" :rules="[rules.required, rules.email]"></v-text-field>
                           <v-checkbox v-model="guests[selectedGuest].is_foreign" label="Иностранец"></v-checkbox>
                         </v-col>
                       </v-row>
+                    </v-container>
+                  </v-card-text>
+                </v-card>
+
+                <v-card v-if="!guestCard">
+                  <v-card-title>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                      <div>
+                        Загрузите файл
+                      </div>
+                      <v-btn color="green darken-1" class="me-2" style="margin-left: auto;" @click="downloadExample">
+                        <v-icon size="small">mdi-upload</v-icon>
+                        Скачать шаблон
+                      </v-btn>
+                      <v-btn color="primary" @click="guestCard=true">
+                        <v-icon size="small">mdi-pencil</v-icon>
+                        Заполнить вручную
+                      </v-btn>
+                    </div>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-container>
+                        <v-list>
+                          <v-list-item-title>
+                            Интрукция
+                          </v-list-item-title>
+                          <v-list-item>
+                            В колонке "Телефон" не указывайте добавочный код страны, он указывается автоматически
+                          </v-list-item>
+                          <v-list-item>
+                            В колонке "Иностранец" напишите "Да" или "Нет" в зависимости от гражданства гостя
+                          </v-list-item>
+                          <v-list-item>
+                            Сохраните файл в формате .csv
+                            <v-list-item-subtitle>Файл -> Сохранить как -> CSV UTF-8 (разделитель запятая) (.csv)</v-list-item-subtitle>
+                          </v-list-item>
+                        </v-list>
+                      </v-container>
+                      <v-file-input
+                        v-model="file"
+                        accept="file/csv"
+                        :rules="[rules.required, rules.download]"
+                        required
+                      ></v-file-input>
+                      Загрузите ваш файл в формате .csv utf-8 (разделитель - запятая)
                     </v-container>
                   </v-card-text>
                 </v-card>
@@ -134,7 +199,6 @@
           </template>
         </v-dialog>
 
-
         <v-menu
           :close-on-content-click="false"
           transition="scale-transition"
@@ -142,14 +206,14 @@
           min-width="290px"
           class="pa-4"
         >
-          <template v-slot:activator="{props: menuActivator}">
+          <template v-slot:activator="{ props: menuActivator }">
             <v-btn v-bind="menuActivator">
               <v-icon left>mdi-filter</v-icon>
               Фильтры
             </v-btn>
           </template>
 
-          <template v-slot:default="{isActive}">
+          <template v-slot:default="{ isActive }">
             <v-card
               transition="scale-transition"
               offset-y
@@ -199,7 +263,7 @@
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
 
-        <template v-slot:item="{item, index}">
+        <template v-slot:item="{ item, index }">
           <tr
             :style="index === rowIndex ? { backgroundColor: '#313131' } : {}"
             @click="goToRequestPage($event, item)"
@@ -222,13 +286,12 @@
   </v-app>
 </template>
 
-
 <script>
 import axios from "axios";
-import {format, parseISO} from "date-fns";
-import {VTimePicker} from 'vuetify/labs/VTimePicker'
+import { format, parseISO } from "date-fns";
+import { VTimePicker } from 'vuetify/labs/VTimePicker';
 import moment from "moment";
-import VueJwtDecode from 'vue-jwt-decode'
+import VueJwtDecode from 'vue-jwt-decode';
 import NavMenu from "@/components/NavMenu.vue";
 
 export default {
@@ -241,26 +304,26 @@ export default {
       guest: '',
       status: 'В ожидании',
       reversedStatuses: [
-        {key: 'В ожидании', value: 1},
-        {key: 'Одобренные', value: 2},
-        {key: 'Отклонённые', value: 3},
-        {key: 'Удалённые', value: 4},
-        {key: 'Завершённые', value: 5},
-        {key: 'Все', value: null}
+        { key: 'В ожидании', value: 1 },
+        { key: 'Одобренные', value: 2 },
+        { key: 'Отклонённые', value: 3 },
+        { key: 'Удалённые', value: 4 },
+        { key: 'Завершённые', value: 5 },
+        { key: 'Все', value: null }
       ],
       statuses: [
-        {key: 1, value: 'В ожидании'},
-        {key: 2, value: 'Одобрена'},
-        {key: 3, value: 'Отклонена'},
-        {key: 4, value: 'Удалена'},
-        {key: 5, value: 'Завершена'},
+        { key: 1, value: 'В ожидании' },
+        { key: 2, value: 'Одобрена' },
+        { key: 3, value: 'Отклонена' },
+        { key: 4, value: 'Удалена' },
+        { key: 5, value: 'Завершена' },
       ],
       dateTimeString: '',
       menu: false,
       date: null,
       placeOfVisit: '',
       visitPurpose: '',
-      guests: [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}],
+      guests: [{ full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false }],
       selectedGuest: null,
       datePicker: true,
       timePicker: false,
@@ -273,6 +336,17 @@ export default {
       rowIndex: null,
       page: 1,
       firstLoad: true,
+      guestCard: true,
+      file: null,
+      rules: {
+        required: value => !!value || 'Поле обязательно для заполнения',
+        download: value => !!value || 'Загрузите файл',
+        email: value => {
+          const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return pattern.test(value) || 'Введите корректный адрес электронной почты';
+        },
+      },
+      snackbarDownload: false,
     };
   },
   methods: {
@@ -283,11 +357,11 @@ export default {
         guest: this.guest,
         currentPage: this.currentPage
       }));
-      this.loading = true
+      this.loading = true;
       try {
         const token = localStorage.getItem("userToken");
         const config = {
-          headers: {"Authorization": `Bearer ${token}`},
+          headers: { "Authorization": `Bearer ${token}` },
           params: {
             status: this.reversedStatuses.find(status => status.key === this.status).value,
             full_name: this.guest,
@@ -295,10 +369,10 @@ export default {
           }
         };
         const response = await axios.get(import.meta.env.VITE_API_URL + "/requests", config);
-        this.requests = response.data
-        this.loading = false
+        this.requests = response.data;
+        this.loading = false;
         if (isActive) {
-          isActive.value = false
+          isActive.value = false;
         }
 
         // Динамическая настройка заголовков таблицы
@@ -314,28 +388,29 @@ export default {
 
       // Создаем новый массив заголовков таблицы
       const newHeaders = [
-        {title: 'Заявитель', key: 'appellant.full_name'},
-        {title: 'Место визита', key: 'place_of_visit'},
-        {title: 'Причина визита', key: 'visit_purpose'},
-        {title: 'Дата визита', key: 'datetime_of_visit'},
-        {title: 'Количество гостей', key: 'guests'},
-        {title: 'Статус', key: 'status'},
+        { title: 'Заявитель', key: 'appellant.full_name' },
+        { title: 'Место визита', key: 'place_of_visit' },
+        { title: 'Причина визита', key: 'visit_purpose' },
+        { title: 'Дата визита', key: 'datetime_of_visit' },
+        { title: 'Количество гостей', key: 'guests' },
+        { title: 'Статус', key: 'status' },
       ];
 
       // Добавляем колонку "Рассмотрел", если нужно
       if (hasConfirmingColumn) {
-        newHeaders.push({title: 'Рассмотрел', key: 'confirming.full_name'});
+        newHeaders.push({ title: 'Рассмотрел', key: 'confirming.full_name' });
       }
 
       // Присваиваем новый массив заголовков таблицы
       this.headers = newHeaders;
     },
     formatDate(datetime) {
-      return format(parseISO(datetime), 'd.MM.Y H:mm')
+      return format(parseISO(datetime), 'd.MM.Y H:mm');
     },
     addGuest() {
       const newId = this.guests.length + 1;
-      this.guests.push({full_name: 'Гость ' + newId, email: '', phone_number: '', is_foreign: false});
+      this.guests.push({ full_name: 'Гость ' + newId, email: '', phone_number: '', is_foreign: false });
+      this.selectedGuest = newId
     },
     removeGuest(index) {
       this.guests.splice(index, 1);
@@ -345,53 +420,77 @@ export default {
       this.selectedGuest = index;
     },
     dateButton() {
-      this.datePicker = true
-      this.timePicker = false
+      this.datePicker = true;
+      this.timePicker = false;
     },
     timeButton() {
-      this.datePicker = false
-      this.timePicker = true
+      this.datePicker = false;
+      this.timePicker = true;
     },
     timeChange(value) {
-      this.timeStr = value
+      this.timeStr = value;
     },
     dateChange(value) {
       const formattedDate = format(new Date(value), 'yyyy-MM-dd');
-      this.dateStr = formattedDate
-      this.datePicker = false
-      this.timePicker = true
+      this.dateStr = formattedDate;
+      this.datePicker = false;
+      this.timePicker = true;
     },
     datetimeSave() {
       if (this.dateStr && this.timeStr) {
-        this.datetimeStr = this.dateStr + ' ' + this.timeStr
-        this.menu = false
+        this.datetimeStr = this.dateStr + ' ' + this.timeStr;
+        this.menu = false;
       }
     },
     getStatusName(value) {
-      const status = this.statuses.find(status => status.key === value.status)
+      const status = this.statuses.find(status => status.key === value.status);
       return status.value;
     },
     async createRequest(isActive) {
-      const token = localStorage.getItem("userToken")
-      const config = {
-        headers: {"Authorization": `Bearer ${token}`},
-      }
+      const token = localStorage.getItem("userToken");
+      let response = null;
+
       try {
-        const response = await axios.post(import.meta.env.VITE_API_URL + '/requests/create', {
-          guests: this.guests,
-          visit_purpose: this.visitPurpose,
-          place_of_visit: this.placeOfVisit,
-          datetime_of_visit: moment(this.datetimeStr).toISOString()
-        }, config);
+        if (this.visitPurpose && this.placeOfVisit && this.datetimeStr) {
+          if (this.guestCard) {
+            if (this.guest[this.selectedGuest] && this.guests) {
+              const config = {
+                headers: {"Authorization": `Bearer ${token}`},
+              };
+              response = await axios.post(import.meta.env.VITE_API_URL + '/requests/create', {
+                guests: this.guests,
+                visit_purpose: this.visitPurpose,
+                place_of_visit: this.placeOfVisit,
+                datetime_of_visit: moment(this.datetimeStr).toISOString()
+              }, config);
+            }
+          } else if (!this.guestCard) {
+            if (this.file) {
+              const config = {
+                headers: {
+                  "Authorization": `Bearer ${token}`,
+                  'Content-Type': 'multipart/form-data',
+                },
+              };
+              const formData = new FormData();
+              formData.append('file', this.file);
+              formData.append('visit_purpose', this.visitPurpose);
+              formData.append('place_of_visit', this.placeOfVisit);
+              formData.append('datetime_of_visit', moment(this.datetimeStr).toISOString());
+              response = await axios.post(import.meta.env.VITE_API_URL + '/requests/create/file', formData, config);
+            }
+          }
+        }
+
         if (response) {
-          await this.fetchRequests()
-          this.selectedGuest = null
-          this.visitPurpose = ''
-          this.placeOfVisit = ''
-          this.datetimeStr = ''
-          this.guests = [{full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false}]
-          isActive.value = false
-          this.snackbar = true
+          await this.fetchRequests();
+          this.selectedGuest = null;
+          this.visitPurpose = '';
+          this.placeOfVisit = '';
+          this.datetimeStr = '';
+          this.guests = [{ full_name: 'Гость 1', email: '', phone_number: '', is_foreign: false }];
+          isActive.value = false;
+          this.snackbar = true;
         }
       } catch (error) {
         console.error("Error", error);
@@ -403,12 +502,12 @@ export default {
     },
     selfRoles() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
-      return userData.extras.roles
+      return userData.extras.roles;
     },
     restoreFilterState() {
       const state = sessionStorage.getItem('filterState');
       if (state) {
-        const {status, appellant, guest, currentPage} = JSON.parse(state);
+        const { status, appellant, guest, currentPage } = JSON.parse(state);
         this.status = status;
         this.appellant = appellant;
         this.guest = guest;
@@ -417,16 +516,26 @@ export default {
     },
     updatePage(page) {
       if (!this.firstLoad || this.page === 1) {
-        console.log(page, 'aaa')
         this.page = page;
         sessionStorage.setItem('currentPage', page.toString());
       }
-      this.firstLoad = false
+      this.firstLoad = false;
     },
     restorePage() {
       const savedPage = sessionStorage.getItem('currentPage');
       if (savedPage) {
         this.page = parseInt(savedPage);
+      }
+    },
+    async downloadExample() {
+      try {
+        const token = localStorage.getItem("userToken");
+        const config = {
+          headers: { "Authorization": `Bearer ${token}` }, };
+        await axios.get(import.meta.env.VITE_API_URL + "/example/Users.xlsx", config);
+        this.snackbarDownload=true
+    } catch (error) {
+        console.error('Error', error);
       }
     }
   },
@@ -439,9 +548,8 @@ export default {
     VTimePicker,
     NavMenu
   },
-}
+};
 </script>
-
 
 <style scoped>
 </style>
