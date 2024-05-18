@@ -20,8 +20,8 @@ export default {
       this.drawer = false;
       this.$router.push("/requests");
     },
-    redirectToCreate() {
-      this.$router.push("/create");
+    redirectToUsers() {
+      this.$router.push("/users");
     },
     getUserData() {
       const userData = VueJwtDecode.decode(localStorage.getItem("userToken"));
@@ -108,17 +108,11 @@ export default {
         </v-list-item-icon>
         <v-list-item-title>Список заявок</v-list-item-title>
       </v-list-item>
-      <v-list-item v-if="userData?.roles.includes(4)" link @click="redirectToCreate">
+      <v-list-item v-if="userData?.roles.includes(4)" link @click="redirectToUsers">
         <v-list-item-icon>
-          <v-icon>mdi-account-plus</v-icon>
+          <v-icon>mdi-folder-account</v-icon>
         </v-list-item-icon>
-        <v-list-item-title>Создание пользователя</v-list-item-title>
-      </v-list-item>
-      <v-list-item v-if="userData?.roles.includes(4)" link>
-        <v-list-item-icon>
-          <v-icon>mdi-account-edit</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Изменение ролей пользователя</v-list-item-title>
+        <v-list-item-title>Пользователи</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>

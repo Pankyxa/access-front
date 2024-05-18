@@ -47,7 +47,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red darken-1" @click="sentRequestReview(3); isActive.value = false">Отклонить заявку</v-btn>
+              <v-btn color="red darken-1" @click="sentRequestReview(3); isActive.value = false; snackbarReject= true">Отклонить заявку</v-btn>
               <v-btn @click="isActive.value = false">Отмена</v-btn>
             </v-card-actions>
           </v-card>
@@ -72,7 +72,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red darken-1" @click="sentRequestReview(4); isActive.value = false">Удалить заявку</v-btn>
+              <v-btn color="red darken-1" @click="sentRequestReview(4); isActive.value = false; snackbarDelete = true">Удалить заявку</v-btn>
               <v-btn @click="isActive.value = false">Отмена</v-btn>
             </v-card-actions>
           </v-card>
@@ -81,6 +81,30 @@
     </v-app-bar>
 
     <v-main>
+      <v-snackbar
+        v-model="snackbarConfirm"
+        timeout="3000"
+        class="text-center"
+      >Заявка рассмотрена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarDelete"
+        timeout="3000"
+        class="text-center"
+      >Заявка удалена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarReject"
+        timeout="3000"
+        class="text-center"
+      >Заявка отклонена</v-snackbar>
+      <v-snackbar
+        v-model="snackbarCompleted"
+        timeout="3000"
+        class="text-center"
+      >Заявка завершена</v-snackbar>
+
+      
+
+
       <v-container class="fill-height">
         <v-row v-if="!isLoading && request" class="fill-height">
           <v-col cols="6">
@@ -120,7 +144,7 @@
                   <v-btn
                     v-if="item.visit_status === 2"
                     color="red"
-                    @click="reviewStatusGuest($event, item, 3)"
+                    @click="reviewStatusGuest($event, item, 3); snackbarCompleted = true"
                   >Вышел</v-btn>
                 </template>
               </v-data-table>
@@ -164,6 +188,10 @@ export default {
       ],
       comment: '',
       confirmDialog: false,
+      snackbarConfirm: false,
+      snackbarDelete: false,
+      snackbarReject: false,
+      snackbarCompleted: false,
     }
   },
   methods: {
@@ -223,7 +251,16 @@ export default {
       this.request.status=status
       this.request.comment=this.comment
       this.setupTableHeaders()
-
+      console.log(status)
+      if (status === 2) {
+        this.snackbarConfirm = true
+      }
+      if (status === 4) {
+        this.snackbarDelete = true
+      }
+      if (status === 3) {
+        this.snackbarReject = true
+      }
       const token = localStorage.getItem("userToken");
       const config = {
         headers: {"Authorization": `Bearer ${token}`},

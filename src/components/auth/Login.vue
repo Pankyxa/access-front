@@ -1,4 +1,17 @@
 <template>
+  <v-dialog v-bind="dialog">
+    <v-card>
+      <v-card-text>Вы были заблокированы. Если вас заблокировали по ошибке, обратитесь к системному администратору
+      </v-card-text>
+      <v-card-actions>
+        <v-btn
+          color="green darken-1"
+          @click="closeTab"
+        >Ок
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
@@ -56,8 +69,10 @@
   </v-container>
 </template>
 
+<
 <script>
 import axios from 'axios';
+import VueJwtDecode from 'vue-jwt-decode';
 
 export default {
   name: 'Login',
@@ -93,6 +108,9 @@ export default {
         console.error('Failed to send password reset email', error);
         alert("Ошибка отправки письма для восстановления пароля: " + error.message);
       }
+    },
+    closeTab() {
+      window.close();
     }
   }
 };

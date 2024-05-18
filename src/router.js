@@ -6,11 +6,14 @@ import Register from "@/components/auth/Register.vue";
 import AdminMenu from "@/components/admin_menu/AdminMenu.vue";
 import UserCreate from '@/components/admin_menu/UserCreate.vue';
 import VueJwtDecode from 'vue-jwt-decode';
+import Users from "@/components/users/Users.vue";
 import Recovery from '@/components/auth/Recovery.vue';
+
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+
     {path: '/', component: Login},
     {path: '/requests', component: Requests},
     {path: '/requests/:id', name: 'requestPage', component: Request, props: true},
@@ -18,8 +21,9 @@ const router = createRouter({
     {path: '/admin_menu', component: AdminMenu},
     {path: '/create', component: UserCreate},
     {path: '/recovery', component: Recovery},
-
+    {path: '/users', component: Users}
   ]
+
 });
 
 router.beforeEach((to, from, next) => {
