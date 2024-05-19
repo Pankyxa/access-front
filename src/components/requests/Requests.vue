@@ -53,6 +53,8 @@
                     <v-time-picker
                       v-if="timePicker === true"
                       @update:model-value="timeChange"
+                      format="24hr"
+                      title="Выберите время"
                     ></v-time-picker>
                   </v-card>
                 </v-menu>
