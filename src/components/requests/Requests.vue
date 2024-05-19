@@ -37,6 +37,7 @@
                       v-bind="menuDate"
                       v-model="datetimeStr"
                       :rules="[rules.required]"
+                      :readonly="true"
                     ></v-text-field>
                   </template>
 
@@ -455,7 +456,7 @@ export default {
       try {
         if (this.visitPurpose && this.placeOfVisit && this.datetimeStr) {
           if (this.guestCard) {
-            if (this.guest[this.selectedGuest] && this.guests) {
+            if (this.guests) {
               const config = {
                 headers: {"Authorization": `Bearer ${token}`},
               };
