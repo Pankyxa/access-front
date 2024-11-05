@@ -5,9 +5,9 @@
       <template v-slot:actions>
         <v-dialog max-width="1000">
           <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" color="green">
+            <v-btn v-bind="activatorProps" color="green" class="pr-1 pl-1" min-width="0">
               <v-icon left>mdi-plus</v-icon>
-              Создать заявку
+              <span v-if="!isMobile">Создать заявку</span>
             </v-btn>
           </template>
 
@@ -15,7 +15,8 @@
             <v-snackbar
               v-model="snackbarDownload"
               timeout="3000"
-            >Шаблон успешно скачан</v-snackbar>
+            >Шаблон успешно скачан
+            </v-snackbar>
             <v-card title="Новая заявка">
               <v-card-text>
                 <v-text-field
@@ -37,7 +38,7 @@
                       v-bind="menuDate"
                       v-model="datetimeStr"
                       :rules="[rules.required]"
-                      :readonly="true"
+                      readonly
                     ></v-text-field>
                   </template>
 
@@ -65,14 +66,14 @@
                     <div style="display: flex; align-items: center; width: 100%;">
                       <div>
                         Гости
-                        <v-tooltip right>
+                        <v-tooltip v-if="!isMobile" right>
                           <template v-slot:activator="{ props: tooltip }">
                             <v-icon v-bind="tooltip">mdi-information</v-icon>
                           </template>
                           <span>Если количество гостей больше 10, воспользуйтесь загрузкой файла</span>
                         </v-tooltip>
                       </div>
-                      <v-btn color="primary" style="margin-left: auto;" @click="guestCard=false">
+                      <v-btn v-if="!isMobile" color="primary" style="margin-left: auto;" @click="guestCard=false">
                         <v-icon size="small">mdi-upload</v-icon>
                         Загрузка файлом
                       </v-btn>
@@ -125,13 +126,15 @@
                       <v-row v-if="selectedGuest !== null">
                         <v-col cols="12">
                           <h3>Заполните данные для гостя: {{ guests[selectedGuest].full_name }}</h3>
-                          <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО" :rules="[rules.required]"></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].full_name" label="ФИО"
+                                        :rules="[rules.required]"></v-text-field>
                           <v-text-field
                             v-model="guests[selectedGuest].phone_number"
                             label="Телефон"
                             :rules="[rules.required]"
                           ></v-text-field>
-                          <v-text-field v-model="guests[selectedGuest].email" label="Почта" :rules="[rules.required, rules.email]"></v-text-field>
+                          <v-text-field v-model="guests[selectedGuest].email" label="Почта"
+                                        :rules="[rules.required, rules.email]"></v-text-field>
                           <v-checkbox v-model="guests[selectedGuest].is_foreign" label="Иностранец"></v-checkbox>
                         </v-col>
                       </v-row>
@@ -170,7 +173,8 @@
                           </v-list-item>
                           <v-list-item>
                             Сохраните файл в формате .csv
-                            <v-list-item-subtitle>Файл -> Сохранить как -> CSV UTF-8 (разделитель запятая) (.csv)</v-list-item-subtitle>
+                            <v-list-item-subtitle>Файл -> Сохранить как -> CSV UTF-8 (разделитель запятая) (.csv)
+                            </v-list-item-subtitle>
                           </v-list-item>
                         </v-list>
                       </v-container>
@@ -210,9 +214,9 @@
           class="pa-4"
         >
           <template v-slot:activator="{ props: menuActivator }">
-            <v-btn v-bind="menuActivator">
+            <v-btn v-bind="menuActivator" class="pr-1 pl-1" min-width="0">
               <v-icon left>mdi-filter</v-icon>
-              Фильтры
+              <span v-if="!isMobile">Фильтры</span>
             </v-btn>
           </template>
 
@@ -254,7 +258,9 @@
         class="text-center"
       >Ваша заявка успешно отправлена на рассмотрение
       </v-snackbar>
+
       <v-data-table
+        v-if="!isMobile"
         :headers="headers"
         :items="requests"
         class="fill-height"
@@ -285,9 +291,93 @@
           </tr>
         </template>
       </v-data-table>
+
+      <v-card v-if="isMobile" class="fill-height">
+        <v-card-title class="d-flex justify-center align-center" style="height: 56px;">
+          <v-pagination
+            v-model="page"
+            :length="numberOfPages"
+            class="pagination-styled"
+            :total-visible="1"
+          ></v-pagination>
+        </v-card-title>
+        <v-card-text class="fill-height" style="max-height: calc(100% - 56px); overflow-y: auto;">
+          <template v-if="loading">
+            <v-skeleton-loader
+              type="card"
+              v-for="n in itemsPerPage"
+              :key="n"
+              class="mb-2"
+            />
+          </template>
+          <template v-else>
+            <v-carousel
+              hide-delimiter-background
+              delimiter-icon="mdi-circle"
+              :cycle="false"
+              :show-arrows="false"
+              class="fill-height"
+              :continuous="false"
+            >
+              <v-carousel-item
+                v-for="(item, index) in paginatedRequests"
+                :key="index"
+              >
+                <v-card class="pa-2" @click="goToRequestPage($event, item)">
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>ФИО: {{ item.appellant.full_name }}</v-list-item-title>
+                      <v-list-item-subtitle>Место визита: {{ item.place_of_visit }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>Цель визита: {{ item.visit_purpose }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>Дата визита: {{ formatDate(item.datetime_of_visit) }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>Количество гостей: {{ item.guests.length }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>Статус: {{ getStatusName(item) }}</v-list-item-subtitle>
+                      <v-list-item-subtitle v-if="item.confirming">Рассмотрел: {{
+                          item.confirming.full_name
+                        }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-card>
+              </v-carousel-item>
+            </v-carousel>
+          </template>
+        </v-card-text>
+      </v-card>
+
+      <v-btn
+        color="primary"
+        dark
+        fab
+        class="v-btn--fab-bottom-right"
+        v-if="isMobile"
+        @click="openQrScanner"
+      >
+        <v-icon>mdi-qrcode-scan</v-icon>
+      </v-btn>
+
+      <v-dialog v-model="showQrScanner" max-width="600px">
+        <v-card>
+          <v-card-title>
+            <span>Сканировать QR-код</span>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="showQrScanner = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text>
+            <qrcode-stream @detect="onDecode" />
+            <v-alert v-if="cameraError" type="error">
+              {{ cameraError }}
+            </v-alert>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
     </v-main>
   </v-app>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -296,6 +386,8 @@ import { VTimePicker } from 'vuetify/labs/VTimePicker';
 import moment from "moment";
 import VueJwtDecode from 'vue-jwt-decode';
 import NavMenu from "@/components/NavMenu.vue";
+import { useDisplay } from "vuetify";
+import { QrcodeStream } from "vue-qrcode-reader";
 
 export default {
   name: 'Requests',
@@ -350,6 +442,11 @@ export default {
         },
       },
       snackbarDownload: false,
+      isMobile: false,
+      itemsPerPage: 5,
+      itemsPerPageOptions: [5, 10, 15],
+      showQrScanner: false, // Новое состояние для диалога сканера QR-кода
+      cameraError: '' // Состояние для ошибок камеры
     };
   },
   methods: {
@@ -408,7 +505,7 @@ export default {
       this.headers = newHeaders;
     },
     formatDate(datetime) {
-      return format(parseISO(datetime), 'd.MM.Y H:mm');
+      return format(parseISO(datetime), 'd.MM.y H:mm');
     },
     addGuest() {
       const newId = this.guests.length + 1;
@@ -458,7 +555,7 @@ export default {
           if (this.guestCard) {
             if (this.guests) {
               const config = {
-                headers: {"Authorization": `Bearer ${token}`},
+                headers: { "Authorization": `Bearer ${token}` },
               };
               response = await axios.post(import.meta.env.VITE_API_URL + '/requests/create', {
                 guests: this.guests,
@@ -534,26 +631,96 @@ export default {
       try {
         const token = localStorage.getItem("userToken");
         const config = {
-          headers: { "Authorization": `Bearer ${token}` }, };
+          headers: { "Authorization": `Bearer ${token}` },
+        };
         await axios.get(import.meta.env.VITE_API_URL + "/example/Users.xlsx", config);
-        this.snackbarDownload=true
-    } catch (error) {
+        this.snackbarDownload = true
+      } catch (error) {
         console.error('Error', error);
       }
+    },
+    onDecode(result) {
+      console.log('QR Code decoded:', result);
+      this.showQrScanner = false;
+      if (result) {
+        // Извлекаем UUID из URL
+        const idMatch = result[0].rawValue.match(/\/requests\/([0-9a-fA-F-]{36})/);
+        if (idMatch && idMatch[1]) {
+          const id = idMatch[1];
+          this.$router.push(`/requests/${id}`);
+        } else {
+          console.error('Invalid QR code URL');
+        }
+      }
+    },
+    onInit(promise) {
+      promise.catch(error => {
+        if (error.name === 'NotAllowedError') {
+          this.cameraError = 'Доступ к камере запрещен. Пожалуйста, предоставьте разрешение на использование камеры.';
+        } else if (error.name === 'NotFoundError') {
+          this.cameraError = 'Камера не найдена. Пожалуйста, подключите камеру и попробуйте снова.';
+        } else {
+          this.cameraError = 'Ошибка доступа к камере: ' + error.message;
+        }
+      });
+    },
+    openQrScanner() {
+      this.cameraError = '';
+      this.showQrScanner = true;
     }
   },
   mounted() {
+    this.isMobile = useDisplay().mobile.value;
     this.restoreFilterState();
     this.restorePage();
     this.fetchRequests();
   },
+  computed: {
+    numberOfPages() {
+      return Math.ceil(this.requests.length / this.itemsPerPage);
+    },
+    paginatedRequests() {
+      const start = (this.page - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.requests.slice(start, end);
+    }
+  },
   components: {
     VTimePicker,
-    NavMenu
-  },
+    NavMenu,
+    QrcodeStream
+  }
 };
 </script>
 
-<style scoped>
-</style>
 
+<style scoped>
+.v-btn--fab-bottom-right {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+}
+
+.v-carousel .v-window__controls__item--active {
+  background-color: white;
+}
+
+.v-carousel .v-window__controls__item {
+  background-color: #a3a3a3;
+}
+
+.pagination-styled {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.v-card-title {
+  padding: 0;
+}
+
+.v-pagination {
+  flex: 1;
+  justify-content: center;
+}
+</style>

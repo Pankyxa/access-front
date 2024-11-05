@@ -1,5 +1,6 @@
 <script>
-import VueJwtDecode from 'vue-jwt-decode'
+import VueJwtDecode from 'vue-jwt-decode';
+import {useDisplay} from 'vuetify';
 
 export default {
   name: 'NavMenu',
@@ -13,6 +14,7 @@ export default {
         {key: 3, value: "Начальник охраны"},
         {key: 4, value: "Админ"},
       ],
+      isMobile: false,
     };
   },
   methods: {
@@ -35,15 +37,16 @@ export default {
     }
   },
   mounted() {
+    this.isMobile = useDisplay().mobile.value;
     this.getUserData()
-  }
+  },
 };
 </script>
 
 <template>
   <v-app-bar :style="{ backgroundColor: 'rgba(25, 118, 210, 0.5)' }">
     <v-app-bar-nav-icon v-if="userData?.roles.includes(4)" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-    <v-app-bar-title>
+    <v-app-bar-title style="min-width: 140px">
       <slot name="title"></slot>
     </v-app-bar-title>
     <v-app-bar-title>
@@ -59,9 +62,9 @@ export default {
       class="pa-4"
     >
       <template v-slot:activator="{props: menuActivator}">
-        <v-btn v-if="userData" v-bind="menuActivator">
+        <v-btn v-if="userData" v-bind="menuActivator" class="pr-1 pl-1" min-width="0">
           <v-icon left>mdi-account</v-icon>
-          {{ userData.full_name.split(' ')[0]+ ' ' + userData.full_name.split(' ')[1][0] + '.' + userData.full_name.split(' ')[2][0] + '.' }}
+          <span v-if="!isMobile">{{ userData.full_name.split(' ')[0]+ ' ' + userData.full_name.split(' ')[1][0] + '.' + userData.full_name.split(' ')[2][0] + '.' }}</span>
         </v-btn>
       </template>
 

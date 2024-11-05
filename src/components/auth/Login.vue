@@ -37,7 +37,7 @@
                   ></v-text-field>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" type="submit">Войти</v-btn>
+                    <v-btn color="primary" @click="login">Войти</v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -49,10 +49,9 @@
   </v-app>
 </template>
 
-
 <script>
 import axios from 'axios';
-import VueJwtDecode from 'vue-jwt-decode'
+import VueJwtDecode from 'vue-jwt-decode';
 
 export default {
   name: 'Login',
@@ -75,17 +74,21 @@ export default {
     async login() {
       if(this.email && this.password) {
         try {
+          console.log('Attempting to log in with email:', this.email);
           const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
             email: this.email,
             password: this.password,
           });
+          console.log('Login response:', response.data);
           localStorage.setItem('userToken', response.data.token);
           const userData = VueJwtDecode.decode(localStorage.getItem('userToken'));
+          console.log('Decoded user data:', userData);
           this.userData = userData.extras;
           if (this.userData.status === 2) {
-            console.log('Login successful', response);
+            console.log('User status is 2, navigating to /requests');
             this.$router.push('/requests');
           } else if (this.userData.status === 3) {
+            console.log('User status is 3, showing dialog');
             this.dialog = true;
           }
         } catch (error) {
@@ -98,7 +101,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .fill-height {
   height: 100vh;
@@ -106,6 +108,3 @@ export default {
   background-size: auto 100vh;
 }
 </style>
-
-
-
